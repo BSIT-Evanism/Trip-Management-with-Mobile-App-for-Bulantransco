@@ -1,0 +1,184 @@
+/* General styling */
+body {
+  background-color: beige;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Universal centered page wrapper */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* Login Page Styling */
+.login-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app-logo {
+  width: 120px; /* Adjust size as needed */
+  height: auto;
+  margin-bottom: 20px; /* Adds space between the logo and title */
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #ECEDED;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 400px;
+}
+
+.login-title {
+  font-size: 1.8em;
+  margin-bottom: 5px;
+  color: #444;
+  text-align: center;
+}
+
+.login-subtitle {
+  font-size: 1.1em;
+  margin-bottom: 20px;
+  color: #717D84;
+  text-align: center;
+}
+
+.login-input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 1em;
+  border-radius: 5px;
+  border: 1px solid #9CA4A4;
+  text-align: center;
+}
+
+.login-button {
+  padding: 10px 15px;
+  font-size: 1em;
+  border-radius: 5px;
+  background-color: #A3C1DA;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  max-width: 200px;
+  margin-top: 15px;
+  text-align: center;
+}
+
+.login-button:hover {
+  background-color: #8AAEC2;
+}
+
+/* Home Page Styling */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #ECEDED;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 500px;
+}
+
+.welcome-text {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: #444;
+  text-align: center;
+}
+
+/* Passenger container styling */
+.passenger-container {
+  background-color: #ECEDED;
+  border-radius: 30px;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dropdown styling */
+.destination-dropdown {
+  padding: 10px;
+  font-size: 1em;
+  border-radius: 5px;
+  background-color: #C9D1D8;
+  color: #444;
+  border: 1px solid #9CA4A4;
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+}
+
+/* Button styling */
+.button, .departure-button {
+  padding: 10px 15px;
+  font-size: 1em;
+  border-radius: 5px;
+  background-color: #A3C1DA;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  max-width: 200px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.button:hover, .departure-button:hover {
+  background-color: #8AAEC2;
+}
+
+/* Departure Page Styling */
+.departure-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #ECEDED;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.departure-title {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+.departure-description {
+  font-size: 1em;
+  margin-bottom: 20px;
+  color: #717D84;
+}

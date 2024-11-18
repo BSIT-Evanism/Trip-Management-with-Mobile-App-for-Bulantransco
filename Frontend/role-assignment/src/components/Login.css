@@ -1,0 +1,61 @@
+/* Set the background for the entire page */
+.login-container {
+  background-image: url('./src/background.png');
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Squircle design */
+.squircle {
+  width: 400px; /* Adjust size to fit */
+  height: 400px;
+  background-color: #d0e7f9; /* Lighter pastel shade */
+  border-radius: 50px; /* Smoother squircle shape */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Optional shadow */
+}
+
+/* Logo styling */
+.logo {
+  width: 190px; /* Adjusted to make it smaller */
+  height: auto;
+  margin-bottom: 20px;
+}
+
+/* Input fields styling */
+.input-field {
+  width: 95%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* MacOS font */
+}
+
+/* Button styling */
+.login-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #0077b6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* MacOS font */
+}
+
+/* Error message styling */
+.error {
+  color: red;
+  margin-top: 10px;
+}
