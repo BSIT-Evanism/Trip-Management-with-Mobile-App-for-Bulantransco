@@ -32,7 +32,6 @@ const LocationDropdown = ({ selectedDestination, setSelectedDestination }) => {
           </option>
         ))}
       </select>
-      {JSON.stringify(destinations)}
     </div>
   );
 };
