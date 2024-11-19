@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import conductor from "./routes/conductor.js";
 import roleAssignment from "./routes/roleAssignment.js";
+import { apiReference } from "@scalar/hono-api-reference";
 
 const app = new Hono();
 app.use("/*", cors());
