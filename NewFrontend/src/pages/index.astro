@@ -1,0 +1,15 @@
+---
+import Layout from "@layouts/Layout.astro";
+
+const data = await fetch("http://localhost:5001/destinations");
+const locations: {
+  location_name: string;
+}[] = await data.json();
+
+console.log(locations);
+---
+
+<Layout title="Home">
+  <h1>Home</h1>
+  {locations.map((location) => <div>{location.location_name}</div>)}
+</Layout>

@@ -4,11 +4,13 @@ import { cors } from "hono/cors";
 import conductor from "./routes/conductor.js";
 import roleAssignment from "./routes/roleAssignment.js";
 import { apiReference } from "@scalar/hono-api-reference";
+import auth from "./routes/auth.js";
 
 const app = new Hono();
 app.use("/*", cors());
 
 // Mount routes
+app.route("/auth", auth);
 app.route("/", conductor);
 app.route("/", roleAssignment);
 

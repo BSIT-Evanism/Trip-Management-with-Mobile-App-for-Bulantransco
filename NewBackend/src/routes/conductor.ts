@@ -1,5 +1,7 @@
 import { Hono } from "hono";
 import pkg from "pg";
+import db from "../db/index.js";
+import { location } from "../db/schema.js";
 
 const { Pool } = pkg;
 
@@ -19,6 +21,20 @@ conductor.get("/destinations", async (c) => {
       "SELECT id, location_name, count FROM locations"
     );
     return c.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching destinations:", error);
+    return c.json({ error: "Database error" }, 500);
+  }
+});
+
+conductor.get("/destinationsnew", async (c) => {
+  try {
+    // const result = await conductorPool.query(
+    //   "SELECT id, location_name, count FROM locations"
+    // );
+    const result = await db.select().from(location);
+
+    return c.json(result);
   } catch (error) {
     console.error("Error fetching destinations:", error);
     return c.json({ error: "Database error" }, 500);
