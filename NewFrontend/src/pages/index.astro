@@ -1,15 +1,25 @@
 ---
 import Layout from "@layouts/Layout.astro";
 
-const data = await fetch("http://localhost:5001/destinations");
-const locations: {
-  location_name: string;
-}[] = await data.json();
+if (!Astro.locals.valid) {
+  return Astro.redirect("/login");
+}
 
-console.log(locations);
+const token = Astro.cookies.get("roletoken");
 ---
 
 <Layout title="Home">
-  <h1>Home</h1>
-  {locations.map((location) => <div>{location.location_name}</div>)}
+  <div class="fullscreen">
+    <h1>Home</h1>
+    <p>Token: {token?.value}</p>
+    <p>Role: {Astro.locals.role}</p>
+    <p>Valid: {Astro.locals.valid}</p>
+  </div>
 </Layout>
+
+<style>
+  .fullscreen {
+    width: 100vw;
+    height: 100vh;
+  }
+</style>

@@ -4,7 +4,13 @@ import Layout from "@layouts/Layout.astro";
 ---
 
 <Layout title="Login">
-  <div>
-    <LoginComponent />
+  <div class="login-container flex justify-center items-center h-screen">
+    <LoginComponent client:load />
   </div>
 </Layout>
+
+<style>
+  .login-container {
+    background-color: #f0f0f0;
+  }
+</style>

@@ -9,10 +9,12 @@ import auth from "./routes/auth.js";
 const app = new Hono();
 app.use("/*", cors());
 
-// Mount routes
-app.route("/auth", auth);
-app.route("/", conductor);
-app.route("/", roleAssignment);
+app
+  .use("/*", cors())
+  // Mount routes
+  .route("/auth", auth)
+  .route("/", conductor)
+  .route("/", roleAssignment);
 
 const port = 5001;
 console.log(`Server is running on http://localhost:${port}`);

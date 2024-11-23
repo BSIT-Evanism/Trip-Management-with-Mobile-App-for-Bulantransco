@@ -1,0 +1,23 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+const url = Astro.url.searchParams;
+const token = url.get("token");
+
+if (!token) {
+  return Astro.redirect("/login");
+}
+
+const res = await fetch(`http://localhost:5001/auth/verify/${token}`);
+const data = await res.json();
+
+if (data.valid) {
+  Astro.cookies.set("roletoken", token as string, {
+    path: "/",
+    httpOnly: true,
+  });
+  return Astro.redirect("/");
+} else {
+  return Astro.redirect("/login");
+}
+---
