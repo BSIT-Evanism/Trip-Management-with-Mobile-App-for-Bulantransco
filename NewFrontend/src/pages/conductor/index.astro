@@ -1,0 +1,16 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+if (Astro.locals.role !== "conductor") {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Conductor">
+  <h1
+    class="scroll-m-20 text-4xl p-2 font-extrabold tracking-tight lg:text-5xl"
+    transition:name="role"
+  >
+    Conductor
+  </h1>
+</Layout>

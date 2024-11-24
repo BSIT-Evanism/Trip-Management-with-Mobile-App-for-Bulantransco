@@ -24,6 +24,7 @@ auth.post(
     z.object({
       username: z.string(),
       password: z.string(),
+      role: z.enum(["conductor", "admin"]),
     })
   ),
   async (c) => {
@@ -57,7 +58,8 @@ auth.post(
 
     if (
       body.username === CONDUCTOR_USER_NAME &&
-      body.password === CONDUCTOR_USER_PASSWORD
+      body.password === CONDUCTOR_USER_PASSWORD &&
+      body.role === "conductor"
     ) {
       const token = await sign({ role: "conductor" }, process.env.SECRET_KEY!);
       setCookie(c, "roletoken", token, {
@@ -67,7 +69,8 @@ auth.post(
       return c.json({ token });
     } else if (
       body.username === ADMIN_USER_NAME &&
-      body.password === ADMIN_USER_PASSWORD
+      body.password === ADMIN_USER_PASSWORD &&
+      body.role === "admin"
     ) {
       const token = await sign({ role: "admin" }, process.env.SECRET_KEY!);
       setCookie(c, "roletoken", token, {
@@ -77,7 +80,7 @@ auth.post(
       return c.json({ token });
     }
     throw new HTTPException(401, {
-      res: c.json({ error: "Invalid credentials" }, 401),
+      res: c.json({ error: "Invalid credentials or role" }, 401),
     });
   }
 );

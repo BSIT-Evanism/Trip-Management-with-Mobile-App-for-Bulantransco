@@ -15,7 +15,7 @@ export const LoginComponent = () => {
             console.log("password", password);
             const res = await fetch(`http://localhost:5001/auth/login`, {
                 method: "POST",
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ username, password, role }),
                 headers: {
                     "Content-Type": "application/json",
                 }
@@ -37,17 +37,70 @@ export const LoginComponent = () => {
     }
 
     return (
-        <div className="w-[40vh] h-[50vh] border shadow-xl bg-zinc-100">
-            <div className="flex min-w-full">
-                <button className={`w-full h-20 ${role === "conductor" ? " bg-zinc-100" : "bg-zinc-200"}`} onClick={() => setRole("conductor")}>Conductor</button>
-                <button className={`w-full h-20 ${role === "admin" ? "bg-zinc-100" : "bg-zinc-200"}`} onClick={() => setRole("admin")}>Admin</button>
-            </div>
-            <div className="flex flex-col h-[calc(100%-10rem)] justify-evenly items-stretch gap-4 p-4">
-                <h1 className="text-2xl font-bold text-center">Login for {role}</h1>
-                <input value={username} onChange={(e) => setUsername(e.target.value)} className="p-2 rounded-md" type="text" placeholder="Username" />
-                <input value={password} onChange={(e) => setPassword(e.target.value)} className="p-2 rounded-md" type="password" placeholder="Password" />
-                <button onClick={() => handleLogin()} className="bg-blue-500 text-white p-2 rounded-md">Login</button>
-                {error && <p className="text-red-500 text-center">{error}</p>}
+        <div className="w-full max-w-md space-y-8 rounded-lg bg-zinc-800/50 p-8 shadow-xl backdrop-blur">
+            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+                Login
+            </h1>
+
+            <div className="space-y-4">
+                <div className="rounded-md bg-zinc-900/50 p-4">
+                    <p className="text-sm font-medium text-zinc-400">Role Selection</p>
+                    <div className="mt-2 flex gap-2">
+                        <button
+                            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${role === "conductor"
+                                ? "bg-zinc-800 text-zinc-100"
+                                : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-300"
+                                }`}
+                            onClick={() => setRole("conductor")}
+                        >
+                            Conductor
+                        </button>
+                        <button
+                            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${role === "admin"
+                                ? "bg-zinc-800 text-zinc-100"
+                                : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-300"
+                                }`}
+                            onClick={() => setRole("admin")}
+                        >
+                            Admin
+                        </button>
+                    </div>
+                </div>
+
+                <div className="rounded-md bg-zinc-900/50 p-4">
+                    <p className="text-sm font-medium text-zinc-400">Credentials</p>
+                    <div className="mt-2 space-y-2">
+                        <input
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="w-full rounded-md border border-zinc-700 bg-zinc-800/50 px-4 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600/50"
+                            type="text"
+                            placeholder="Username"
+                        />
+                        <input
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full rounded-md border border-zinc-700 bg-zinc-800/50 px-4 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600/50"
+                            type="password"
+                            placeholder="Password"
+                        />
+                    </div>
+                </div>
+
+                <button
+                    onClick={() => handleLogin()}
+                    className="w-full rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-200"
+                >
+                    Login
+                </button>
+
+                {error && (
+                    <div className="rounded-md bg-red-500/10 p-4">
+                        <p className="text-sm font-medium text-red-400">
+                            {error}
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );
