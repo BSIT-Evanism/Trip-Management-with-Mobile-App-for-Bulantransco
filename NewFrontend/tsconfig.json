@@ -10,6 +10,7 @@
       "@components/*": ["src/components/*"],
       "@layouts/*": ["src/layouts/*"],
       "@utils/*": ["src/utils/*"]
-    }
+    },
+    "strict": true
   }
 }

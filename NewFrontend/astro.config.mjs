@@ -9,9 +9,11 @@ import spotlightjs from '@spotlightjs/astro';
 
 import node from '@astrojs/node';
 
+import metaTags from 'astro-meta-tags';
+
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react(), tailwind(), sentry(), spotlightjs()],
+  integrations: [react(), tailwind(), sentry(), spotlightjs(), metaTags()],
   output: 'server',
 
   adapter: node({

@@ -8,7 +8,7 @@ if (!token) {
   return Astro.redirect("/login");
 }
 
-const res = await fetch(`http://localhost:5001/auth/verify/${token}`);
+const res = await fetch(`http://localhost:5002/auth/verify?token=${token}`);
 const data = await res.json();
 
 if (data.valid) {

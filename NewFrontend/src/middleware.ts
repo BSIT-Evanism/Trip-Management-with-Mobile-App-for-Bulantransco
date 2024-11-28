@@ -15,7 +15,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   try {
     const data = await fetch(
-      `http://localhost:5001/auth/verify/${token.value}`
+      `http://localhost:5002/auth/verify?token=${token.value}`
     );
 
     const json = await data.json();

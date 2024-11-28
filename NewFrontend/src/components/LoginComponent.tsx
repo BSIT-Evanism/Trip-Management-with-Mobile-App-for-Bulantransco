@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export const LoginComponent = () => {
 
-    const [role, setRole] = useState<"conductor" | "admin">("conductor");
+    const [role, setRole] = useState<"conductor" | "manager" | "inspector">("conductor");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -13,7 +13,7 @@ export const LoginComponent = () => {
         try {
             console.log("username", username);
             console.log("password", password);
-            const res = await fetch(`http://localhost:5001/auth/login`, {
+            const res = await fetch(`http://localhost:5002/auth/login`, {
                 method: "POST",
                 body: JSON.stringify({ username, password, role }),
                 headers: {
@@ -56,13 +56,22 @@ export const LoginComponent = () => {
                             Conductor
                         </button>
                         <button
-                            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${role === "admin"
+                            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${role === "manager"
                                 ? "bg-zinc-800 text-zinc-100"
                                 : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-300"
                                 }`}
-                            onClick={() => setRole("admin")}
+                            onClick={() => setRole("manager")}
                         >
-                            Admin
+                            Manager
+                        </button>
+                        <button
+                            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${role === "inspector"
+                                ? "bg-zinc-800 text-zinc-100"
+                                : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-300"
+                                }`}
+                            onClick={() => setRole("inspector")}
+                        >
+                            Inspector
                         </button>
                     </div>
                 </div>

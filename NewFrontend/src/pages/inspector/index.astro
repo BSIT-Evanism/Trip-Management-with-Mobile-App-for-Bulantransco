@@ -1,0 +1,11 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+if (Astro.locals.role !== "inspector") {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Inspector">
+  <h1>Inspector</h1>
+</Layout>

@@ -1,121 +1,99 @@
-import { Hono } from "hono";
-import pkg from "pg";
+import { Elysia, t } from "elysia";
 import db from "../db/index.js";
-import { location } from "../db/schema.js";
+import { location, locations } from "../db/schema.js";
+import { eq, gt, sql } from "drizzle-orm";
 
-const { Pool } = pkg;
-
-const conductorPool = new Pool({
-  user: process.env.CONDUCTOR_DB_USER || "postgres",
-  host: process.env.CONDUCTOR_DB_HOST || "127.0.0.1",
-  database: process.env.CONDUCTOR_DB_NAME || "conductor_app_db",
-  password: process.env.CONDUCTOR_DB_PASSWORD || "392002",
-  port: Number(process.env.CONDUCTOR_DB_PORT) || 5432,
-});
-
-const conductor = new Hono();
-
-conductor.get("/destinations", async (c) => {
-  try {
-    const result = await conductorPool.query(
-      "SELECT id, location_name, count FROM locations"
-    );
-    return c.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching destinations:", error);
-    return c.json({ error: "Database error" }, 500);
-  }
-});
-
-conductor.get("/destinationsnew", async (c) => {
-  try {
-    // const result = await conductorPool.query(
-    //   "SELECT id, location_name, count FROM locations"
-    // );
-    const result = await db.select().from(location);
-
-    return c.json(result);
-  } catch (error) {
-    console.error("Error fetching destinations:", error);
-    return c.json({ error: "Database error" }, 500);
-  }
-});
-
-conductor.post("/passengers", async (c) => {
-  const { destinationId } = await c.req.json();
-  try {
-    const result = await conductorPool.query(
-      "UPDATE locations SET count = count + 1 WHERE id = $1 RETURNING *",
-      [destinationId]
-    );
-    return c.json(result.rows[0]);
-  } catch (error) {
-    return c.json({ error: "Database error" }, 500);
-  }
-});
-
-conductor.get("/departure-destinations", async (c) => {
-  try {
-    const result = await conductorPool.query(
-      "SELECT id, location_name, count FROM locations WHERE count > 0"
-    );
-    return c.json(result.rows);
-  } catch (error) {
-    return c.json({ error: "Database error" }, 500);
-  }
-});
-
-conductor.post("/deboard", async (c) => {
-  const { destinationId, multiplier } = await c.req.json();
-
-  if (!destinationId || multiplier == null) {
-    return c.json(
-      { error: "Destination ID and multiplier are required." },
-      400
-    );
-  }
-
-  if (multiplier <= 0) {
-    return c.json({ error: "Multiplier must be greater than zero." }, 400);
-  }
-
-  try {
-    const destinationResult = await conductorPool.query(
-      "SELECT count FROM locations WHERE id = $1",
-      [destinationId]
-    );
-
-    if (destinationResult.rowCount === 0) {
-      return c.json({ error: "Destination not found." }, 404);
+export const conductor = new Elysia()
+  .get("/destinations", async () => {
+    try {
+      const result = await db.select().from(location);
+      return result;
+    } catch (error) {
+      throw new Error("Database error");
     }
-
-    const currentCount = destinationResult.rows[0].count;
-
-    if (currentCount < multiplier) {
-      return c.json(
-        {
-          error: `Cannot deboard ${multiplier} passengers. Only ${currentCount} are available.`,
-        },
-        400
-      );
+  })
+  .post(
+    "/passengers",
+    async ({ body }) => {
+      const { destinationId } = body;
+      try {
+        const result = await db
+          .update(locations)
+          .set({ count: sql`${locations.count} + 1` })
+          .where(eq(locations.id, destinationId))
+          .returning();
+        return result[0];
+      } catch (error) {
+        throw new Error("Database error");
+      }
+    },
+    {
+      body: t.Object({
+        destinationId: t.Number(),
+      }),
     }
+  )
+  .get("/departure-destinations", async () => {
+    try {
+      const result = await db
+        .select()
+        .from(locations)
+        .where(gt(locations.count, 0));
+      return result;
+    } catch (error) {
+      throw new Error("Database error");
+    }
+  })
+  .post(
+    "/deboard",
+    async ({ body }) => {
+      const { destinationId, multiplier } = body;
 
-    await conductorPool.query(
-      "UPDATE locations SET count = GREATEST(count - $1, 0) WHERE id = $2",
-      [multiplier, destinationId]
-    );
+      if (multiplier <= 0) {
+        throw new Error("Multiplier must be greater than zero.");
+      }
 
-    const updatedDestinations = await conductorPool.query(
-      "SELECT id, location_name, count FROM locations WHERE count > 0"
-    );
+      try {
+        const destination = await db
+          .select()
+          .from(locations)
+          .where(eq(locations.id, destinationId))
+          .limit(1);
 
-    return c.json({
-      message: `Successfully deboarded ${multiplier} passenger(s)`,
-      destinations: updatedDestinations.rows,
-    });
-  } catch (error) {
-    return c.json({ error: "Database error" }, 500);
-  }
-});
+        if (!destination.length) {
+          throw new Error("Destination not found.");
+        }
 
-export default conductor;
+        const currentCount = destination[0].count ?? 0;
+
+        if (currentCount < multiplier) {
+          throw new Error(
+            `Cannot deboard ${multiplier} passengers. Only ${currentCount} are available.`
+          );
+        }
+
+        await db
+          .update(locations)
+          .set({ count: Math.max(currentCount - multiplier, 0) })
+          .where(eq(locations.id, destinationId));
+
+        const updatedDestinations = await db
+          .select()
+          .from(locations)
+          .where(gt(locations.count, 0));
+
+        return {
+          message: `Successfully deboarded ${multiplier} passenger(s)`,
+          destinations: updatedDestinations,
+        };
+      } catch (error) {
+        throw new Error("Database error");
+      }
+    },
+    {
+      body: t.Object({
+        destinationId: t.Number(),
+        multiplier: t.Number(),
+      }),
+    }
+  );

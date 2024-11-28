@@ -1,109 +1,106 @@
-import { Hono, type HonoRequest } from "hono";
-import { decode, sign, verify } from "hono/jwt";
-import { HTTPException } from "hono/http-exception";
-import { env } from "hono/adapter";
-import dotenv from "dotenv";
-import { verifyToken } from "../lib/verify.js";
-import { validator } from "hono/validator";
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-import { setCookie } from "hono/cookie";
+import { Elysia, t } from "elysia";
+import db from "../db/index";
+import { conductors, inspectors } from "../db/schema";
+import { and, eq } from "drizzle-orm";
+import { jwt } from "@elysiajs/jwt";
 
-dotenv.config();
+enum Role {
+  CONDUCTOR = "conductor",
+  MANAGER = "manager",
+  INSPECTOR = "inspector",
+}
 
-const auth = new Hono();
-
-auth.get("/", (c) => {
-  return c.json({ message: "Hello World" });
-});
-
-auth.post(
-  "/login",
-  zValidator(
-    "json",
-    z.object({
-      username: z.string(),
-      password: z.string(),
-      role: z.enum(["conductor", "admin"]),
+export const auth = new Elysia({ prefix: "/auth" })
+  .use(
+    jwt({
+      name: "jwt",
+      secret: Bun.env.SECRET_KEY!,
     })
-  ),
-  async (c) => {
-    const body = await c.req.json();
-    const {
-      CONDUCTOR_USER_NAME,
-      CONDUCTOR_USER_PASSWORD,
-      ADMIN_USER_NAME,
-      ADMIN_USER_PASSWORD,
-    } = env<{
-      CONDUCTOR_USER_NAME: string;
-      CONDUCTOR_USER_PASSWORD: string;
-      ADMIN_USER_NAME: string;
-      ADMIN_USER_PASSWORD: string;
-    }>(c);
+  )
+  .get("/", () => ({ message: "Hello World Auth" }))
+  .post(
+    "/login",
+    async ({ jwt, body }) => {
+      const { username, password, role } = body;
 
-    console.log(
-      CONDUCTOR_USER_NAME,
-      CONDUCTOR_USER_PASSWORD,
-      ADMIN_USER_NAME,
-      ADMIN_USER_PASSWORD
-    );
+      if (role === "conductor") {
+        const conductor = await db
+          .select()
+          .from(conductors)
+          .where(
+            and(
+              eq(conductors.name, username),
+              eq(conductors.password, password)
+            )
+          )
+          .limit(1);
 
-    if (body.username === "" && body.password === "") {
-      throw new HTTPException(401, {
-        res: c.json({ error: "Invalid credentials" }, 401),
-      });
+        if (conductor.length !== 0) {
+          const token = await jwt.sign({
+            userId: conductor[0].id,
+            role: "conductor",
+          });
+          return { token };
+        }
+      } else if (role === "manager") {
+        if (
+          Bun.env.MANAGER_USER_NAME === username &&
+          Bun.env.MANAGER_PASSWORD === password
+        ) {
+          const token = await jwt.sign({ role: "manager" });
+          return { token };
+        }
+      } else if (role === "inspector") {
+        const inspector = await db
+          .select()
+          .from(inspectors)
+          .where(
+            and(
+              eq(inspectors.name, username),
+              eq(inspectors.password, password)
+            )
+          )
+          .limit(1);
+
+        if (inspector.length !== 0) {
+          const token = await jwt.sign({
+            userId: inspector[0].id,
+            role: "inspector",
+          });
+          return { token };
+        }
+      }
+
+      throw new Error("Invalid credentials or role");
+    },
+    {
+      body: t.Object({
+        username: t.String(),
+        password: t.String(),
+        role: t.Union([
+          t.Literal("conductor"),
+          t.Literal("manager"),
+          t.Literal("inspector"),
+        ]),
+      }),
     }
+  )
+  .get(
+    "/verify",
+    async ({ jwt, query }) => {
+      try {
+        const payload = await jwt.verify(query.token);
 
-    console.log(process.env.CONDUCTOR_USER_NAME!);
-
-    if (
-      body.username === CONDUCTOR_USER_NAME &&
-      body.password === CONDUCTOR_USER_PASSWORD &&
-      body.role === "conductor"
-    ) {
-      const token = await sign({ role: "conductor" }, process.env.SECRET_KEY!);
-      setCookie(c, "roletoken", token, {
-        path: "/",
-        httpOnly: true,
-      });
-      return c.json({ token });
-    } else if (
-      body.username === ADMIN_USER_NAME &&
-      body.password === ADMIN_USER_PASSWORD &&
-      body.role === "admin"
-    ) {
-      const token = await sign({ role: "admin" }, process.env.SECRET_KEY!);
-      setCookie(c, "roletoken", token, {
-        path: "/",
-        httpOnly: true,
-      });
-      return c.json({ token });
+        if (payload) {
+          return { valid: true, role: payload.role };
+        }
+      } catch {
+        throw new Error("Invalid token");
+      }
+    },
+    {
+      query: t.Object({
+        token: t.String(),
+      }),
     }
-    throw new HTTPException(401, {
-      res: c.json({ error: "Invalid credentials or role" }, 401),
-    });
-  }
-);
-
-auth.get(
-  "/verify/:token",
-  zValidator(
-    "param",
-    z.object({
-      token: z.string(),
-    })
-  ),
-  async (c) => {
-    const param = c.req.param("token");
-    const token = await verifyToken(param);
-    if (token) {
-      return c.json({ valid: true, role: token.role });
-    } else {
-      throw new HTTPException(401, {
-        res: c.json({ valid: false, role: null }, 401),
-      });
-    }
-  }
-);
-
-export default auth;
+  );

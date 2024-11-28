@@ -13,4 +13,74 @@ if (Astro.locals.role !== "conductor") {
   >
     Conductor
   </h1>
+  <div class="grid gap-4 p-4">
+    <div class="border-4 border-black bg-white p-6">
+      <h2 class="text-3xl font-bold uppercase border-b-4 border-black pb-2">
+        Current Trip
+      </h2>
+      <div class="mt-4">
+        <div class="border-2 border-black p-4 bg-gray-100">
+          <p class="font-mono">No active trip</p>
+          <button
+            class="mt-2 border-2 border-black px-4 py-2 font-mono hover:bg-black hover:text-white transition-colors"
+          >
+            START NEW TRIP
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-4 border-black bg-white p-6">
+      <h2 class="text-3xl font-bold uppercase border-b-4 border-black pb-2">
+        Recent Activity
+      </h2>
+      <div class="mt-4">
+        <table class="w-full border-4 border-black">
+          <thead>
+            <tr>
+              <th
+                class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                >TRIP ID</th
+              >
+              <th
+                class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                >DATE</th
+              >
+              <th
+                class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                >STATUS</th
+              >
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="border-2 border-black px-4 py-2 font-mono"
+                >No recent trips</td
+              >
+              <td class="border-2 border-black px-4 py-2 font-mono">-</td>
+              <td class="border-2 border-black px-4 py-2 font-mono">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="border-4 border-black bg-white p-6">
+      <h2 class="text-3xl font-bold uppercase border-b-4 border-black pb-2">
+        Quick Actions
+      </h2>
+      <div class="mt-4 grid grid-cols-2 gap-4">
+        <button
+          class="border-2 border-black px-4 py-2 font-mono hover:bg-black hover:text-white transition-colors"
+        >
+          VIEW SCHEDULE
+        </button>
+        <button
+          class="border-2 border-black px-4 py-2 font-mono hover:bg-black hover:text-white transition-colors"
+        >
+          REPORT ISSUE
+        </button>
+      </div>
+    </div>
+  </div>
 </Layout>
