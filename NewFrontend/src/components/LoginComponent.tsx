@@ -1,3 +1,5 @@
+import { fetchClient } from "@/lib/client";
+import axios from "axios";
 import { useState } from "react";
 
 
@@ -11,17 +13,19 @@ export const LoginComponent = () => {
 
     async function handleLogin() {
         try {
-            console.log("username", username);
-            console.log("password", password);
-            const res = await fetch(`http://localhost:5002/auth/login`, {
+
+            const { data } = await fetchClient.request({
                 method: "POST",
-                body: JSON.stringify({ username, password, role }),
+                url: "/auth/login",
                 headers: {
                     "Content-Type": "application/json",
+                },
+                data: {
+                    username,
+                    password,
+                    role
                 }
-            });
-            console.log("res", res);
-            const data = await res.json();
+            })
 
             if (data.error) {
                 setError(data.error);

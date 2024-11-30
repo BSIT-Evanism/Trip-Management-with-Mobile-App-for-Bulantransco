@@ -45,7 +45,7 @@ export const auth = new Elysia({ prefix: "/auth" })
       } else if (role === "manager") {
         if (
           Bun.env.MANAGER_USER_NAME === username &&
-          Bun.env.MANAGER_PASSWORD === password
+          Bun.env.MANAGER_USER_PASSWORD === password
         ) {
           const token = await jwt.sign({ role: "manager" });
           return { token };
