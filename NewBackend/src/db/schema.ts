@@ -20,20 +20,30 @@ export const conductors = pgTable("conductors", (t) => ({
 
 export const trips = pgTable("trips", (t) => ({
   id: t.uuid("id").defaultRandom().primaryKey(),
-  conductorId: t.uuid("conductor_id").references(() => conductors.id),
-  inspectorId: t.uuid("inspector_id").references(() => inspectors.id),
+  conductorId: t.uuid("conductor_id").references(() => conductors.id, {
+    onDelete: "set null",
+  }),
+  inspectorId: t.uuid("inspector_id").references(() => inspectors.id, {
+    onDelete: "set null",
+  }),
   startDate: t.timestamp("start_date").notNull(),
   endDate: t.timestamp("end_date").notNull(),
   isCompleted: t.boolean("is_completed").notNull().default(false),
   totalPassengers: t.integer("total_passengers").notNull(),
   currentPassengers: t.integer("current_passengers").notNull(),
-  destination: t.uuid("destination").references(() => locations.id),
+  destination: t.uuid("destination").references(() => locations.id, {
+    onDelete: "set null",
+  }),
 }));
 
 export const tripLogs = pgTable("trip_logs", (t) => ({
   id: t.serial("id").primaryKey(),
-  tripId: t.uuid("trip_id").references(() => trips.id),
-  locationId: t.uuid("location_id").references(() => locations.id),
+  tripId: t.uuid("trip_id").references(() => trips.id, {
+    onDelete: "set null",
+  }),
+  locationId: t.uuid("location_id").references(() => locations.id, {
+    onDelete: "set null",
+  }),
   logMessage: t.varchar("log_message", { length: 255 }),
   logTime: t.timestamp("log_time").notNull(),
 }));

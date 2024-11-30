@@ -16,6 +16,18 @@ type Inspector = {
   relatedTrips: { isCompleted: boolean }[];
 };
 
+type Trip = {
+  id: string;
+  relatedDestination: { name: string } | null;
+  currentPassengers: number;
+  relatedConductor: { name: string } | null;
+  relatedInspector: { name: string } | null;
+  startDate: string;
+  endDate: string;
+  totalPassengers: number;
+  isCompleted: boolean;
+};
+
 import { AddPersonelComponent } from "@/components/AddConductorComponent";
 import { AddLocationsComponent } from "@/components/AddLocationsComponent";
 import { AddTripsComponent } from "@/components/AddTripsComponent";
@@ -28,7 +40,7 @@ if (Astro.locals.role !== "manager") {
   return Astro.redirect("/");
 }
 
-const [conductors, locations, inspectors] = (await Promise.all([
+const [conductors, locations, inspectors, trips] = (await Promise.all([
   fetchClient
     .get("/manager/conductors")
     .then(({ data }) => data)
@@ -50,7 +62,14 @@ const [conductors, locations, inspectors] = (await Promise.all([
       console.error(error);
       return [];
     }),
-])) as [Conductor[], Location[], Inspector[]];
+  fetchClient
+    .get("/manager/trips")
+    .then(({ data }) => data)
+    .catch((error) => {
+      console.error(error);
+      return [];
+    }),
+])) as [Conductor[], Location[], Inspector[], Trip[]];
 ---
 
 <Layout title="Manager">
@@ -61,14 +80,23 @@ const [conductors, locations, inspectors] = (await Promise.all([
     Manager
   </h1>
 
-  <div class="grid gap-4 p-4">
-    <div class="grid grid-cols-2 gap-4">
-      <AddTripsComponent
-        locations={locations}
-        conductors={conductors}
-        inspectors={inspectors}
-        client:load
-      />
+  <div class="grid gap-6 p-6">
+    <!-- First row: Trips form and Routes -->
+    <div class="grid grid-cols-2 gap-6">
+      <div class="border-4 border-black bg-white p-6">
+        <h2
+          class="text-3xl font-bold uppercase border-b-4 border-black pb-2 mb-4"
+        >
+          Add Trip
+        </h2>
+        <AddTripsComponent
+          locations={locations}
+          conductors={conductors}
+          inspectors={inspectors}
+          client:load
+        />
+      </div>
+
       <div class="border-4 border-black bg-white p-6">
         <h2 class="text-3xl font-bold uppercase border-b-4 border-black pb-2">
           Routes
@@ -87,6 +115,10 @@ const [conductors, locations, inspectors] = (await Promise.all([
                       class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
                       >NAME</th
                     >
+                    <th
+                      class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                      >Delete</th
+                    >
                   </tr>
                 </thead>
                 <tbody>
@@ -98,6 +130,21 @@ const [conductors, locations, inspectors] = (await Promise.all([
                         </td>
                         <td class="border-2 border-black px-4 py-2 font-mono">
                           {location.name}
+                        </td>
+                        <td class="border-2 border-black px-4 py-2 font-mono">
+                          <form method="POST" action={actions.deleteLocation}>
+                            <input
+                              type="hidden"
+                              name="id"
+                              value={location.id}
+                            />
+                            <button
+                              class="bg-red-500 text-white px-4 py-2"
+                              type="submit"
+                            >
+                              Delete
+                            </button>
+                          </form>
                         </td>
                       </tr>
                     ))
@@ -111,10 +158,107 @@ const [conductors, locations, inspectors] = (await Promise.all([
       </div>
     </div>
 
-    <ConductorsInspectorsComp
-      conductors={conductors}
-      inspectors={inspectors}
-      client:load
-    />
+    <!-- Second row: Personnel -->
+    <div class="border-4 border-black bg-white p-6">
+      <h2
+        class="text-3xl font-bold uppercase border-b-4 border-black pb-2 mb-4"
+      >
+        Personnel
+      </h2>
+      <ConductorsInspectorsComp
+        conductors={conductors}
+        inspectors={inspectors}
+        client:load
+      />
+    </div>
+
+    <!-- Third row: Trips table -->
+    <div class="border-4 border-black bg-white p-6">
+      <h2 class="text-3xl font-bold uppercase border-b-4 border-black pb-2">
+        Trips
+      </h2>
+      <div class="mt-4">
+        <div class="border-2 border-black p-4 bg-gray-100">
+          <div class="max-h-[250px] overflow-y-auto">
+            <table class="w-full border-4 border-black">
+              <thead>
+                <tr>
+                  <th
+                    class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                    >ID</th
+                  >
+                  <th
+                    class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                    >Conductor</th
+                  >
+                  <th
+                    class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                    >Inspector</th
+                  >
+                  <th
+                    class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                    >Start Date</th
+                  >
+                  <th
+                    class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                    >End Date</th
+                  >
+                  <th
+                    class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                    >Passengers</th
+                  >
+                  <th
+                    class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                    >Completed</th
+                  >
+                  <th
+                    class="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100"
+                    >Destination</th
+                  >
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  trips.map((trip) => (
+                    <tr>
+                      <td class="border-2 border-black px-4 py-2 font-mono">
+                        {trip.id}
+                      </td>
+                      <td class="border-2 border-black px-4 py-2 font-mono">
+                        {trip.relatedConductor
+                          ? trip.relatedConductor.name
+                          : "None"}
+                      </td>
+                      <td class="border-2 border-black px-4 py-2 font-mono">
+                        {trip.relatedInspector
+                          ? trip.relatedInspector.name
+                          : "None"}
+                      </td>
+                      <td class="border-2 border-black px-4 py-2 font-mono">
+                        {trip.startDate}
+                      </td>
+                      <td class="border-2 border-black px-4 py-2 font-mono">
+                        {trip.endDate}
+                      </td>
+                      <td class="border-2 border-black px-4 py-2 font-mono">
+                        {trip.currentPassengers}/{trip.totalPassengers}
+                      </td>
+                      <td class="border-2 border-black px-4 py-2 font-mono">
+                        {trip.isCompleted ? "Yes" : "No"}
+                      </td>
+                      <td class="border-2 border-black px-4 py-2 font-mono">
+                        {trip.relatedDestination
+                          ? trip.relatedDestination.name
+                          : "None"}
+                      </td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </Layout>

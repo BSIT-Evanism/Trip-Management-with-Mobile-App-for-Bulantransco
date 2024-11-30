@@ -153,4 +153,42 @@ export const server = {
       }
     },
   }),
+  deleteLocation: defineAction({
+    accept: "form",
+    input: z.object({
+      id: z.string(),
+    }),
+    handler: async (input, context) => {
+      console.log("inputDeleteLocation", input);
+
+      if (!context.cookies.get("roletoken")) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Not logged in",
+        });
+      }
+
+      const token = context.cookies.get("roletoken")?.value;
+
+      try {
+        const { data } = await fetchClient.request({
+          method: "POST",
+          url: "/manager/deletelocation",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          data: input,
+        });
+
+        return { success: true };
+      } catch (error) {
+        console.log(error);
+        throw new ActionError({
+          code: "BAD_REQUEST",
+          message: "Failed to delete location",
+        });
+      }
+    },
+  }),
 };

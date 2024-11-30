@@ -55,6 +55,8 @@ export const AddTripsComponent = ({ locations, conductors, inspectors }: { locat
                 console.error(error);
             }
             console.log("data", data);
+            alert("Trips added successfully");
+            location.reload();
         } catch (error) {
             console.error(error);
         }

@@ -1,8 +1,9 @@
 import Elysia, { t } from "elysia";
 import db from "../db";
 import jwt from "@elysiajs/jwt";
-import { conductors, inspectors, locations, trips, trips } from "../db/schema";
+import { conductors, inspectors, locations, trips } from "../db/schema";
 import bearer from "@elysiajs/bearer";
+import { eq } from "drizzle-orm";
 
 export const managersRoute = new Elysia({ prefix: "/manager" })
   .use(
@@ -146,4 +147,47 @@ export const managersRoute = new Elysia({ prefix: "/manager" })
         totalPassengers: t.Number(),
       }),
     }
-  );
+  )
+  .post(
+    "/deletelocation",
+    async ({ body, bearer, jwt }) => {
+      const decoded = await jwt.verify(bearer);
+
+      if (decoded && decoded.role !== "manager") {
+        return new Error("Unauthorized");
+      }
+
+      const location = await db
+        .delete(locations)
+        .where(eq(locations.id, body.id));
+
+      return location;
+    },
+    {
+      body: t.Object({
+        id: t.String(),
+      }),
+    }
+  )
+  .get("/trips", async () => {
+    const trips = await db.query.trips.findMany({
+      with: {
+        relatedConductor: {
+          columns: {
+            name: true,
+          },
+        },
+        relatedInspector: {
+          columns: {
+            name: true,
+          },
+        },
+        relatedDestination: {
+          columns: {
+            name: true,
+          },
+        },
+      },
+    });
+    return trips;
+  });
