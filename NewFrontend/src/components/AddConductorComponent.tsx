@@ -2,18 +2,19 @@ import { actions } from "astro:actions"
 import { useState } from "react"
 import { createPortal } from "react-dom"
 
-export const AddConductorComponent = () => {
-
+export const AddPersonelComponent = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showModal, setShowModal] = useState(false)
+    const [activeTab, setActiveTab] = useState<'conductor' | 'inspector'>('conductor')
 
     async function handleClick() {
-        console.log(email, password);
-        const { data, error } = await actions.addConductor({
+        const { data, error } = await actions.addPersonel({
             email: email,
-            password: password
+            password: password,
+            role: activeTab
         })
+
 
         if (error) {
             console.log("error", error);
@@ -38,9 +39,20 @@ export const AddConductorComponent = () => {
                         >
                             ×
                         </button>
-                        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-4">
-                            Add New Conductor
-                        </h3>
+                        <div className="flex gap-4 border-b border-black mb-4">
+                            <button
+                                onClick={() => setActiveTab('conductor')}
+                                className={`pb-2 text-2xl font-semibold tracking-tight transition-colors ${activeTab === 'conductor' ? 'border-b-4 border-black' : 'text-gray-500 hover:text-black'}`}
+                            >
+                                Conductor
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('inspector')}
+                                className={`pb-2 text-2xl font-semibold tracking-tight transition-colors ${activeTab === 'inspector' ? 'border-b-4 border-black' : 'text-gray-500 hover:text-black'}`}
+                            >
+                                Inspector
+                            </button>
+                        </div>
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -51,7 +63,7 @@ export const AddConductorComponent = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="border-2 border-black p-2 w-full font-mono"
-                                    placeholder="conductor@example.com"
+                                    placeholder="email@example.com"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -70,7 +82,7 @@ export const AddConductorComponent = () => {
                                 onClick={handleClick}
                                 className="w-full border-2 border-black px-4 py-2 font-mono hover:bg-black hover:text-white transition-colors"
                             >
-                                Add Conductor
+                                Add {activeTab === 'conductor' ? 'Conductor' : 'Inspector'}
                             </button>
                         </div>
                     </div>
@@ -81,7 +93,7 @@ export const AddConductorComponent = () => {
                 className="border-2 border-black px-4 py-2 w-full font-mono hover:bg-black hover:text-white transition-colors"
                 onClick={() => setShowModal(!showModal)}
             >
-                ADD CONDUCTOR
+                ADD PERSONNEL
             </button>
         </div>
     )

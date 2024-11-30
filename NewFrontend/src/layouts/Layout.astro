@@ -27,7 +27,7 @@ const loggedIn = Astro.locals.valid;
       loggedIn && (
         <form method="POST" action={actions.logoutFunction}>
           <button
-            class="fixed z-20 top-4 right-4 rounded-md bg-zinc-800/50 px-4 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+            class="absolute z-20 top-4 right-4 rounded-md bg-zinc-800/50 px-4 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
             type="submit"
           >
             Logout

@@ -11,11 +11,12 @@ export const server = {
       return { success: true };
     },
   }),
-  addConductor: defineAction({
+  addPersonel: defineAction({
     accept: "json",
     input: z.object({
       email: z.string().email(),
       password: z.string(),
+      role: z.enum(["conductor", "inspector"]),
     }),
     handler: async (input, context) => {
       console.log("input", input);
@@ -39,7 +40,7 @@ export const server = {
       try {
         const { data } = await fetchClient.request({
           method: "POST",
-          url: "/manager/addconductor",
+          url: "/manager/addpersonel",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -47,6 +48,7 @@ export const server = {
           data: {
             email: input.email,
             password: input.password,
+            role: input.role,
           },
         });
 
@@ -55,7 +57,7 @@ export const server = {
         if (!data) {
           throw new ActionError({
             code: "BAD_REQUEST",
-            message: "Failed to add conductor",
+            message: "Failed to add personel",
           });
         }
 
@@ -64,7 +66,7 @@ export const server = {
         console.log(error);
         throw new ActionError({
           code: "BAD_REQUEST",
-          message: "Failed to add conductor",
+          message: "Failed to add personel",
         });
       }
     },
@@ -105,6 +107,48 @@ export const server = {
         throw new ActionError({
           code: "BAD_REQUEST",
           message: "Failed to add location",
+        });
+      }
+    },
+  }),
+  addTrips: defineAction({
+    accept: "form",
+    input: z.object({
+      locationId: z.string(),
+      conductorId: z.string(),
+      inspectorId: z.string(),
+      totalPassengers: z.number(),
+      date: z.coerce.date(),
+    }),
+    handler: async (input, context) => {
+      console.log("input", input);
+
+      if (!context.cookies.get("roletoken")) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Not logged in",
+        });
+      }
+
+      const token = context.cookies.get("roletoken")?.value;
+
+      try {
+        const { data } = await fetchClient.request({
+          method: "POST",
+          url: "/manager/addtrips",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          data: input,
+        });
+
+        return { success: true };
+      } catch (error) {
+        console.log(error);
+        throw new ActionError({
+          code: "BAD_REQUEST",
+          message: "Failed to add trips",
         });
       }
     },
