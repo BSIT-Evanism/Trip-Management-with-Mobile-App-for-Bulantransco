@@ -1,9 +1,27 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { fetchClient } from "@/lib/client";
 
 if (Astro.locals.role !== "conductor") {
   return Astro.redirect("/");
 }
+
+type Trip = {
+  id: string;
+  startDate: string;
+  endDate: string;
+  isCompleted: boolean;
+  relatedDestination: { name: string } | null;
+  relatedInspector: { name: string } | null;
+};
+
+const { data: trips } = await fetchClient.get<Trip[]>("/conductor/trips", {
+  headers: {
+    Authorization: `Bearer ${Astro.cookies.get("roletoken")?.value}`,
+  },
+});
+
+console.log(trips);
 ---
 
 <Layout title="Conductor">
@@ -32,7 +50,7 @@ if (Astro.locals.role !== "conductor") {
 
     <div class="border-4 border-black bg-white p-6">
       <h2 class="text-3xl font-bold uppercase border-b-4 border-black pb-2">
-        Recent Activity
+        ALL TRIPS
       </h2>
       <div class="mt-4">
         <table class="w-full border-4 border-black">
@@ -53,13 +71,37 @@ if (Astro.locals.role !== "conductor") {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td class="border-2 border-black px-4 py-2 font-mono"
-                >No recent trips</td
-              >
-              <td class="border-2 border-black px-4 py-2 font-mono">-</td>
-              <td class="border-2 border-black px-4 py-2 font-mono">-</td>
-            </tr>
+            {
+              trips.length === 0 ? (
+                <tr>
+                  <td class="border-2 border-black px-4 py-2 font-mono">
+                    No recent trips
+                  </td>
+                  <td class="border-2 border-black px-4 py-2 font-mono">-</td>
+                  <td class="border-2 border-black px-4 py-2 font-mono">-</td>
+                </tr>
+              ) : (
+                trips.map((trip) => (
+                  <tr>
+                    <td class="border-2 border-black px-4 py-2 font-mono">
+                      <a
+                        transition:name="tripId"
+                        class="hover:underline"
+                        href={`/conductor/${trip.id}`}
+                      >
+                        {trip.id}
+                      </a>
+                    </td>
+                    <td class="border-2 border-black px-4 py-2 font-mono">
+                      {new Date(trip.startDate).toLocaleDateString()}
+                    </td>
+                    <td class="border-2 border-black px-4 py-2 font-mono">
+                      {trip.isCompleted ? "COMPLETED" : "IN PROGRESS"}
+                    </td>
+                  </tr>
+                ))
+              )
+            }
           </tbody>
         </table>
       </div>
