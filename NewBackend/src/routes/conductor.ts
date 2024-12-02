@@ -15,7 +15,7 @@ export const conductor = new Elysia({ prefix: "/conductor" })
   .use(bearer())
   .get(
     "/trips",
-    async ({ jwt, bearer }) => {
+    async ({ jwt, bearer, query }) => {
       const payload = await jwt.verify(bearer);
 
       if (!payload) {
@@ -26,23 +26,48 @@ export const conductor = new Elysia({ prefix: "/conductor" })
         throw new Error("Unauthorized");
       }
 
-      const trips = await db.query.trips.findMany({
-        where: (table, { eq }) =>
-          eq(table.conductorId, payload.userId as string),
-        with: {
-          relatedDestination: {
-            columns: {
-              name: true,
+      if (query.tripId) {
+        console.log("query exists", query.tripId);
+
+        const trips = await db.query.trips.findMany({
+          where: (table, { eq, and }) =>
+            and(
+              eq(table.conductorId, payload.userId as string),
+              eq(table.id, query.tripId as string)
+            ),
+          with: {
+            relatedDestination: {
+              columns: {
+                name: true,
+              },
+            },
+            relatedInspector: {
+              columns: {
+                name: true,
+              },
             },
           },
-          relatedInspector: {
-            columns: {
-              name: true,
+        });
+        return trips;
+      } else {
+        const trips = await db.query.trips.findMany({
+          where: (table, { eq }) =>
+            eq(table.conductorId, payload.userId as string),
+          with: {
+            relatedDestination: {
+              columns: {
+                name: true,
+              },
+            },
+            relatedInspector: {
+              columns: {
+                name: true,
+              },
             },
           },
-        },
-      });
-      return trips;
+        });
+        return trips;
+      }
     },
     {
       beforeHandle: async ({ bearer, jwt }) => {

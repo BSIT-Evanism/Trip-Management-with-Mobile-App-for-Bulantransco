@@ -85,7 +85,7 @@ console.log(trips);
                   <tr>
                     <td class="border-2 border-black px-4 py-2 font-mono">
                       <a
-                        transition:name="tripId"
+                        transition:name={"tripId" + trip.id}
                         class="hover:underline"
                         href={`/conductor/${trip.id}`}
                       >
