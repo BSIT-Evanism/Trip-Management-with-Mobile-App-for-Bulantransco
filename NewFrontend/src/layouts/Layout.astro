@@ -25,16 +25,85 @@ const loggedIn = Astro.locals.valid;
   <body>
     {
       loggedIn && (
+        <div
+      class="fixed px-4 py-2 top-0 loading-indicator-inactive loader left-1/2 -translate-x-1/2 w-40 h-fit bg-white z-10 border-4 border-t-0 border-dashed border-black transition-all duration-500"
+    >
+      <h1 class="text-2xl font-bold">Loading...</h1>
+    </div>
+    <div class="border-4 border-black bg-white">
+      <nav class="flex flex-wrap px-4 md:px-6 py-4" aria-label="Breadcrumb">
+        <ol class="inline-flex flex-wrap items-center gap-2 md:gap-4">
+          <li class="inline-flex items-center">
+            <a
+              href="/"
+              class="font-mono text-base md:text-lg border-2 border-black px-2 md:px-3 py-1 hover:bg-black hover:text-white transition-colors"
+            >
+              Home
+            </a>
+          </li>
+          {
+            Astro.url.pathname
+              .split("/")
+              .filter(Boolean)
+              .map((segment, index, array) => (
+                <li>
+                  <div class="flex items-center">
+                    <span class="mx-2 md:mx-3 text-black font-bold">/</span>
+                    {index === array.length - 1 ? (
+                      <span class="font-mono text-base md:text-lg px-2 md:px-3 py-1 bg-gray-100 border-2 border-black">
+                        {segment}
+                      </span>
+                    ) : (
+                      <a
+                        href={`/${array.slice(0, index + 1).join("/")}`}
+                        class="font-mono text-base md:text-lg border-2 border-black px-2 md:px-3 py-1 hover:bg-black hover:text-white transition-colors"
+                      >
+                        {segment}
+                      </a>
+                    )}
+                  </div>
+                </li>
+              ))
+          }
+        </ol>
+      </nav>
         <form method="POST" action={actions.logoutFunction}>
           <button
-            class="absolute z-20 top-4 right-4 border-2 border-black px-4 py-2 font-mono hover:bg-black hover:text-white transition-colors"
+            class="absolute z-20 top-2 md:top-4 right-2 md:right-4 border-2 border-black px-2 md:px-4 py-1 md:py-2 text-sm md:text-base font-mono hover:bg-black hover:text-white transition-colors"
             type="submit"
           >
             LOGOUT
           </button>
         </form>
+    </div>
       )
     }
+    
     <slot />
   </body>
 </html>
+
+<style>
+  .loading-indicator-inactive {
+    transform: translateY(-100%);
+  }
+
+  .loading-indicator-active {
+    transform: translateY(0%);
+  }
+</style>
+
+<script>
+  document.addEventListener("astro:before-preparation", () => {
+     ("astro:before-preparation");
+    const loader = document.getElementsByClassName("loader")[0];
+    loader.classList.remove("loading-indicator-inactive");
+    loader.classList.add("loading-indicator-active");
+  });
+  document.addEventListener("astro:after-preparation", () => {
+     ("astro:after-preparation");
+    const loader = document.getElementsByClassName("loader")[0];
+    loader.classList.remove("loading-indicator-active");
+    loader.classList.add("loading-indicator-inactive");
+  });
+</script>

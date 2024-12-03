@@ -28,7 +28,14 @@ export const trips = pgTable("trips", (t) => ({
   }),
   startDate: t.timestamp("start_date").notNull(),
   endDate: t.timestamp("end_date").notNull(),
-  isCompleted: t.boolean("is_completed").notNull().default(false),
+  // isCompleted: t.boolean("is_completed").notNull().default(false),
+  tripStatus: t
+    .varchar("trip_status", {
+      length: 255,
+      enum: ["not_started", "in_progress", "completed"],
+    })
+    .default("not_started")
+    .notNull(),
   totalPassengers: t.integer("total_passengers").notNull(),
   currentPassengers: t.integer("current_passengers").notNull(),
   destination: t.uuid("destination").references(() => locations.id, {
@@ -39,9 +46,6 @@ export const trips = pgTable("trips", (t) => ({
 export const tripLogs = pgTable("trip_logs", (t) => ({
   id: t.serial("id").primaryKey(),
   tripId: t.uuid("trip_id").references(() => trips.id, {
-    onDelete: "set null",
-  }),
-  locationId: t.uuid("location_id").references(() => locations.id, {
     onDelete: "set null",
   }),
   logMessage: t.varchar("log_message", { length: 255 }),
@@ -76,10 +80,6 @@ export const tripLogsRelations = relations(tripLogs, ({ one }) => ({
   relatedTrip: one(trips, {
     fields: [tripLogs.tripId],
     references: [trips.id],
-  }),
-  relatedLocation: one(locations, {
-    fields: [tripLogs.locationId],
-    references: [locations.id],
   }),
 }));
 

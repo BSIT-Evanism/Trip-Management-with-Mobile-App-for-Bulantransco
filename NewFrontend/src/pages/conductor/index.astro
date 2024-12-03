@@ -10,7 +10,7 @@ type Trip = {
   id: string;
   startDate: string;
   endDate: string;
-  isCompleted: boolean;
+  tripStatus: "not_started" | "in_progress" | "completed";
   relatedDestination: { name: string } | null;
   relatedInspector: { name: string } | null;
 };
@@ -21,7 +21,7 @@ const { data: trips } = await fetchClient.get<Trip[]>("/conductor/trips", {
   },
 });
 
-console.log(trips);
+trips;
 ---
 
 <Layout title="Conductor">
@@ -37,14 +37,39 @@ console.log(trips);
         Current Trip
       </h2>
       <div class="mt-4">
-        <div class="border-2 border-black p-4 bg-gray-100">
-          <p class="font-mono">No active trip</p>
-          <button
-            class="mt-2 border-2 border-black px-4 py-2 font-mono hover:bg-black hover:text-white transition-colors"
-          >
-            START NEW TRIP
-          </button>
-        </div>
+        {
+          trips.find((trip) => trip.tripStatus === "in_progress") ? (
+            <div class="border-2 border-black p-4 bg-gray-100">
+              {(() => {
+                const activeTrip = trips.find(
+                  (trip) => trip.tripStatus === "in_progress"
+                )!;
+                return (
+                  <>
+                    <p class="font-mono mb-2">Active Trip: {activeTrip.id}</p>
+                    <p class="font-mono mb-2">
+                      Destination:{" "}
+                      {activeTrip.relatedDestination?.name ?? "NONE"}
+                    </p>
+                    <p class="font-mono mb-4">
+                      Inspector: {activeTrip.relatedInspector?.name ?? "NONE"}
+                    </p>
+                    <a
+                      href={`/conductor/${activeTrip.id}`}
+                      class="inline-block border-2 border-black px-4 py-2 font-mono hover:bg-black hover:text-white transition-colors"
+                    >
+                      VIEW DETAILS
+                    </a>
+                  </>
+                );
+              })()}
+            </div>
+          ) : (
+            <div class="border-2 border-black p-4 bg-gray-100">
+              <p class="font-mono">No active trip</p>
+            </div>
+          )
+        }
       </div>
     </div>
 
@@ -84,19 +109,25 @@ console.log(trips);
                 trips.map((trip) => (
                   <tr>
                     <td class="border-2 border-black px-4 py-2 font-mono">
-                      <a
-                        transition:name={"tripId" + trip.id}
-                        class="hover:underline"
-                        href={`/conductor/${trip.id}`}
-                      >
-                        {trip.id}
-                      </a>
+                      {trip.tripStatus === "in_progress" ? (
+                        <a
+                          transition:name={"tripId" + trip.id}
+                          class="hover:underline"
+                          href={`/conductor/${trip.id}`}
+                        >
+                          {trip.id}
+                        </a>
+                      ) : (
+                        <span class="text-gray-500">{trip.id}</span>
+                      )}
                     </td>
                     <td class="border-2 border-black px-4 py-2 font-mono">
                       {new Date(trip.startDate).toLocaleDateString()}
                     </td>
                     <td class="border-2 border-black px-4 py-2 font-mono">
-                      {trip.isCompleted ? "COMPLETED" : "IN PROGRESS"}
+                      {trip.tripStatus
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (c) => c.toUpperCase())}
                     </td>
                   </tr>
                 ))
@@ -107,7 +138,7 @@ console.log(trips);
       </div>
     </div>
 
-    <div class="border-4 border-black bg-white p-6">
+    <!-- <div class="border-4 border-black bg-white p-6">
       <h2 class="text-3xl font-bold uppercase border-b-4 border-black pb-2">
         Quick Actions
       </h2>
@@ -123,6 +154,6 @@ console.log(trips);
           REPORT ISSUE
         </button>
       </div>
-    </div>
+    </div> -->
   </div>
 </Layout>

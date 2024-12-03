@@ -2,12 +2,13 @@
 import Layout from "@/layouts/Layout.astro";
 import { fetchClient } from "@/lib/client";
 import { ConductorPassengerControl } from "@/components/ConductorPassengerControl";
+import { UserLogComponent } from "@/components/UserLogComponent";
 
 type Trip = {
   id: string;
   startDate: string;
   endDate: string;
-  isCompleted: boolean;
+  tripStatus: "not_started" | "in_progress" | "completed";
   relatedDestination: { name: string } | null;
   relatedInspector: { name: string } | null;
   totalPassengers: number;
@@ -15,6 +16,10 @@ type Trip = {
 };
 
 const { tripId } = Astro.params;
+
+if (!tripId) {
+  return Astro.redirect("/conductor");
+}
 
 const { data: trips } = await fetchClient.get<Trip[]>(
   `/conductor/trips?tripId=${tripId}`,
@@ -52,6 +57,7 @@ const singleRecord = trips[0];
       <ConductorPassengerControl
         client:load
         initialCount={singleRecord.currentPassengers}
+        tripId={tripId}
       />
     </div>
 
@@ -80,15 +86,24 @@ const singleRecord = trips[0];
       <div class="mt-4">
         <div class="border-2 border-black p-4 bg-gray-100">
           <p class="font-mono">
-            Status: {singleRecord.isCompleted ? "COMPLETED" : "NOT COMPLETED"}
+            Status: {
+              singleRecord.tripStatus
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (c) => c.toUpperCase())
+            }
           </p>
-          <button
+          <!-- <button
             class="mt-2 border-2 border-black px-4 py-2 font-mono hover:bg-black hover:text-white transition-colors"
           >
             COMPLETE TRIP
-          </button>
+          </button> -->
         </div>
       </div>
     </div>
   </div>
+  <UserLogComponent
+    tripId={tripId}
+    token={Astro.cookies.get("roletoken")?.value || ""}
+    client:load
+  />
 </Layout>

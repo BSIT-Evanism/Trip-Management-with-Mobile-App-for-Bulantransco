@@ -6,7 +6,7 @@ export const server = {
   logoutFunction: defineAction({
     accept: "form",
     handler: async (input, context) => {
-      console.log("logout");
+      ("logout");
       context.cookies.delete("roletoken");
       return { success: true };
     },
@@ -19,8 +19,6 @@ export const server = {
       role: z.enum(["conductor", "inspector"]),
     }),
     handler: async (input, context) => {
-      console.log("input", input);
-
       if (!context.cookies.get("roletoken")) {
         throw new ActionError({
           code: "UNAUTHORIZED",
@@ -38,21 +36,19 @@ export const server = {
       const token = context.cookies.get("roletoken")?.value;
 
       try {
-        const { data } = await fetchClient.request({
-          method: "POST",
-          url: "/manager/addpersonel",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          data: {
+        const { data } = await fetchClient.post(
+          "/manager/addpersonel",
+          {
             email: input.email,
             password: input.password,
             role: input.role,
           },
-        });
-
-        console.log("data response", data);
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!data) {
           throw new ActionError({
@@ -63,7 +59,7 @@ export const server = {
 
         return { success: true };
       } catch (error) {
-        console.log(error);
+        error;
         throw new ActionError({
           code: "BAD_REQUEST",
           message: "Failed to add personel",
@@ -71,14 +67,13 @@ export const server = {
       }
     },
   }),
-  addLocation: defineAction({
+  deletePersonel: defineAction({
     accept: "form",
     input: z.object({
-      name: z.string(),
+      userId: z.string(),
+      type: z.enum(["conductor", "inspector"]),
     }),
     handler: async (input, context) => {
-      console.log("input", input);
-
       if (!context.cookies.get("roletoken")) {
         throw new ActionError({
           code: "UNAUTHORIZED",
@@ -89,21 +84,54 @@ export const server = {
       const token = context.cookies.get("roletoken")?.value;
 
       try {
-        const { data } = await fetchClient.request({
-          method: "POST",
-          url: "/manager/addlocation",
+        await fetchClient.post("/manager/deletepersonel", input, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          data: {
-            name: input.name,
           },
         });
 
         return { success: true };
       } catch (error) {
-        console.log(error);
+        error;
+        throw new ActionError({
+          code: "BAD_REQUEST",
+          message: "Failed to delete personel",
+        });
+      }
+    },
+  }),
+  addLocation: defineAction({
+    accept: "form",
+    input: z.object({
+      name: z.string(),
+    }),
+    handler: async (input, context) => {
+      if (!context.cookies.get("roletoken")) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Not logged in",
+        });
+      }
+
+      const token = context.cookies.get("roletoken")?.value;
+
+      try {
+        const { data } = await fetchClient.post(
+          "/manager/addlocation",
+          {
+            name: input.name,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        return { success: true };
+      } catch (error) {
+        error;
         throw new ActionError({
           code: "BAD_REQUEST",
           message: "Failed to add location",
@@ -121,8 +149,6 @@ export const server = {
       date: z.coerce.date(),
     }),
     handler: async (input, context) => {
-      console.log("input", input);
-
       if (!context.cookies.get("roletoken")) {
         throw new ActionError({
           code: "UNAUTHORIZED",
@@ -133,19 +159,16 @@ export const server = {
       const token = context.cookies.get("roletoken")?.value;
 
       try {
-        const { data } = await fetchClient.request({
-          method: "POST",
-          url: "/manager/addtrips",
+        const { data } = await fetchClient.post("/manager/addtrips", input, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          data: input,
         });
 
         return { success: true };
       } catch (error) {
-        console.log(error);
+        error;
         throw new ActionError({
           code: "BAD_REQUEST",
           message: "Failed to add trips",
@@ -159,7 +182,80 @@ export const server = {
       id: z.string(),
     }),
     handler: async (input, context) => {
-      console.log("inputDeleteLocation", input);
+      if (!context.cookies.get("roletoken")) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Not logged in",
+        });
+      }
+
+      const token = context.cookies.get("roletoken")?.value;
+
+      try {
+        const { data } = await fetchClient.post(
+          "/manager/deletelocation",
+          input,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        return { success: true };
+      } catch (error) {
+        error;
+        throw new ActionError({
+          code: "BAD_REQUEST",
+          message: "Failed to delete location",
+        });
+      }
+    },
+  }),
+  changePassengerCount: defineAction({
+    accept: "json",
+    input: z.object({
+      type: z.enum(["add", "sub"]),
+      count: z.number(),
+      tripId: z.string(),
+    }),
+    handler: async (input, context) => {
+      input;
+
+      if (!context.cookies.get("roletoken")) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Not logged in",
+        });
+      }
+
+      const token = context.cookies.get("roletoken")?.value;
+      try {
+        await fetchClient.post("/conductor/change-count", input, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        return { success: true };
+      } catch (error) {
+        error;
+        throw new ActionError({
+          code: "BAD_REQUEST",
+          message: "Failed to delete location",
+        });
+      }
+    },
+  }),
+  startTrip: defineAction({
+    accept: "json",
+    input: z.object({
+      tripId: z.string(),
+    }),
+    handler: async (input, context) => {
+      input;
 
       if (!context.cookies.get("roletoken")) {
         throw new ActionError({
@@ -171,22 +267,54 @@ export const server = {
       const token = context.cookies.get("roletoken")?.value;
 
       try {
-        const { data } = await fetchClient.request({
-          method: "POST",
-          url: "/manager/deletelocation",
+        await fetchClient.post("/inspector/start-trip", input, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          data: input,
         });
 
         return { success: true };
       } catch (error) {
-        console.log(error);
+        error;
         throw new ActionError({
           code: "BAD_REQUEST",
-          message: "Failed to delete location",
+          message: "Failed to start trip",
+        });
+      }
+    },
+  }),
+  endTrip: defineAction({
+    accept: "json",
+    input: z.object({
+      tripId: z.string(),
+    }),
+    handler: async (input, context) => {
+      input;
+
+      if (!context.cookies.get("roletoken")) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Not logged in",
+        });
+      }
+
+      const token = context.cookies.get("roletoken")?.value;
+
+      try {
+        await fetchClient.post("/inspector/end-trip", input, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        return { success: true };
+      } catch (error) {
+        error;
+        throw new ActionError({
+          code: "BAD_REQUEST",
+          message: "Failed to end trip",
         });
       }
     },

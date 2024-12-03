@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { fetchClient } from "@/lib/client";
 
 const url = Astro.url.searchParams;
 const token = url.get("token");
@@ -8,8 +9,9 @@ if (!token) {
   return Astro.redirect("/login");
 }
 
-const res = await fetch(`http://localhost:5002/auth/verify?token=${token}`);
-const data = await res.json();
+const { data } = await fetchClient.get<{ valid: boolean; role: string }>(
+  `/auth/verify?token=${token}`
+);
 
 if (data.valid) {
   Astro.cookies.set("roletoken", token as string, {

@@ -1,11 +1,7 @@
 import { fetchClient } from "@/lib/client";
-import axios from "axios";
 import { useState } from "react";
 
-
-
 export const LoginComponent = () => {
-
     const [role, setRole] = useState<"conductor" | "manager" | "inspector">("conductor");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -13,19 +9,11 @@ export const LoginComponent = () => {
 
     async function handleLogin() {
         try {
-
-            const { data } = await fetchClient.request({
-                method: "POST",
-                url: "/auth/login",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                data: {
-                    username,
-                    password,
-                    role
-                }
-            })
+            const { data } = await fetchClient.post<{ error: string; token: string }>("/auth/login", {
+                username,
+                password,
+                role
+            });
 
             if (data.error) {
                 setError(data.error);
@@ -36,7 +24,7 @@ export const LoginComponent = () => {
             }
 
         } catch (e) {
-            console.log("error");
+            ("error");
         }
     }
 

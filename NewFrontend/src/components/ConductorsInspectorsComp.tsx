@@ -1,19 +1,37 @@
-import { useState } from "react";
+import { actions } from "astro:actions";
+import { useState, type FormEvent } from "react";
 
 type Conductor = {
     id: string;
     name: string;
-    relatedTrips: { isCompleted: boolean }[];
+    relatedTrips: { tripStatus: "not_started" | "in_progress" | "completed" }[];
 };
 
 type Inspector = {
     id: string;
     name: string;
-    relatedTrips: { isCompleted: boolean }[];
+    relatedTrips: { tripStatus: "not_started" | "in_progress" | "completed" }[];
 };
 
 export const ConductorsInspectorsComp = ({ conductors, inspectors }: { conductors: Conductor[], inspectors: Inspector[] }) => {
     const [activeTab, setActiveTab] = useState<'conductors' | 'inspectors'>('conductors');
+
+    const handleDelete = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        if (!confirm('Are you sure you want to delete this person?')) {
+            return;
+        }
+
+        const formData = new FormData(e.target as HTMLFormElement);
+
+
+        const res = await actions.deletePersonel(formData);
+
+        if (res.data?.success) {
+            location.reload();
+        }
+    };
 
     const TableHeader = () => (
         <tr>
@@ -24,15 +42,19 @@ export const ConductorsInspectorsComp = ({ conductors, inspectors }: { conductor
         </tr>
     );
 
-    const TableRow = ({ id, name, relatedTrips }: { id: string, name: string, relatedTrips: { isCompleted: boolean }[] }) => (
+    const TableRow = ({ id, name, relatedTrips }: { id: string, name: string, relatedTrips: { tripStatus: "not_started" | "in_progress" | "completed" }[] }) => (
         <tr>
             <td className="border-2 border-black px-4 py-2 font-mono">{id}</td>
             <td className="border-2 border-black px-4 py-2 font-mono">{name}</td>
             <td className="border-2 border-black px-4 py-2 font-mono">
-                {relatedTrips.filter(trip => !trip.isCompleted).length ? "ACTIVE" : "INACTIVE"}
+                {relatedTrips.filter(trip => trip.tripStatus === 'in_progress').length ? "ACTIVE" : "INACTIVE"}
             </td>
             <td className="border-2 border-black px-4 py-2 font-mono">
-                <button className="hover:underline">VIEW</button>
+                <form onSubmit={handleDelete}>
+                    <input type="hidden" name="userId" value={id} />
+                    <input type="hidden" name="type" value={activeTab === 'conductors' ? 'conductor' : 'inspector'} />
+                    <button type="submit" className="hover:underline">DELETE</button>
+                </form>
             </td>
         </tr>
     );

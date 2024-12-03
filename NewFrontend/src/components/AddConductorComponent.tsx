@@ -15,11 +15,6 @@ export const AddPersonelComponent = () => {
             role: activeTab
         })
 
-
-        if (error) {
-            console.log("error", error);
-        }
-
         if (data) {
             setShowModal(false)
             setEmail("")

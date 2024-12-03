@@ -2,7 +2,7 @@
 type Conductor = {
   id: string;
   name: string;
-  relatedTrips: { isCompleted: boolean }[];
+  relatedTrips: { tripStatus: "not_started" | "in_progress" | "completed" }[];
 };
 
 type Location = {
@@ -13,7 +13,7 @@ type Location = {
 type Inspector = {
   id: string;
   name: string;
-  relatedTrips: { isCompleted: boolean }[];
+  relatedTrips: { tripStatus: "not_started" | "in_progress" | "completed" }[];
 };
 
 type Trip = {
@@ -25,10 +25,9 @@ type Trip = {
   startDate: string;
   endDate: string;
   totalPassengers: number;
-  isCompleted: boolean;
+  tripStatus: "not_started" | "in_progress" | "completed";
 };
 
-import { AddPersonelComponent } from "@/components/AddConductorComponent";
 import { AddLocationsComponent } from "@/components/AddLocationsComponent";
 import { AddTripsComponent } from "@/components/AddTripsComponent";
 import { ConductorsInspectorsComp } from "@/components/ConductorsInspectorsComp";
@@ -222,7 +221,7 @@ const [conductors, locations, inspectors, trips] = (await Promise.all([
                   trips.map((trip) => (
                     <tr>
                       <td class="border-2 border-black px-4 py-2 font-mono">
-                        {trip.id}
+                        <a href={`/manager/${trip.id}`}>{trip.id}</a>
                       </td>
                       <td class="border-2 border-black px-4 py-2 font-mono">
                         {trip.relatedConductor
@@ -244,7 +243,9 @@ const [conductors, locations, inspectors, trips] = (await Promise.all([
                         {trip.currentPassengers}/{trip.totalPassengers}
                       </td>
                       <td class="border-2 border-black px-4 py-2 font-mono">
-                        {trip.isCompleted ? "Yes" : "No"}
+                        {trip.tripStatus
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (c) => c.toUpperCase())}
                       </td>
                       <td class="border-2 border-black px-4 py-2 font-mono">
                         {trip.relatedDestination

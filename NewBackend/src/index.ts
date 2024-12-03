@@ -7,6 +7,8 @@ import { auth } from "./routes/auth";
 import { conductor } from "./routes/conductor";
 import { managersRoute } from "./routes/manager";
 import { logger } from "@tqman/nice-logger";
+import { inspectorRoutes } from "./routes/inspector";
+import db from "./db";
 
 const app = new Elysia()
   .use(logger())
@@ -23,6 +25,20 @@ const app = new Elysia()
   .use(auth)
   .use(conductor)
   .use(managersRoute)
-  .listen(5002);
+  .use(inspectorRoutes)
+  .get("/userlogs/:tripId", async ({ params, jwt, bearer }) => {
+    const user = await jwt.verify(bearer);
+
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    const logs = await db.query.tripLogs.findMany({
+      where: (table, { eq }) => eq(table.tripId, params.tripId),
+    });
+
+    return logs;
+  })
+  .listen({ port: 3002, idleTimeout: 255, development: false });
 
 console.log(`🦊 Server is running at http://localhost:${app.server?.port}`);

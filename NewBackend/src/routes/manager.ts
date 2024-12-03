@@ -18,7 +18,7 @@ export const managersRoute = new Elysia({ prefix: "/manager" })
       with: {
         relatedTrips: {
           columns: {
-            isCompleted: true,
+            tripStatus: true,
           },
         },
       },
@@ -39,7 +39,7 @@ export const managersRoute = new Elysia({ prefix: "/manager" })
       with: {
         relatedTrips: {
           columns: {
-            isCompleted: true,
+            tripStatus: true,
           },
         },
       },
@@ -89,6 +89,36 @@ export const managersRoute = new Elysia({ prefix: "/manager" })
         }),
         password: t.String(),
         role: t.Union([t.Literal("conductor"), t.Literal("inspector")]),
+      }),
+    }
+  )
+  .post(
+    "/deletepersonel",
+    async ({ body, bearer, jwt }) => {
+      console.log(body);
+
+      const decoded = await jwt.verify(bearer);
+
+      if (decoded && decoded.role !== "manager") {
+        return new Error("Unauthorized");
+      }
+
+      if (body.type === "conductor") {
+        const user = await db
+          .delete(conductors)
+          .where(eq(conductors.id, body.userId));
+        return user;
+      } else if (body.type === "inspector") {
+        const user = await db
+          .delete(inspectors)
+          .where(eq(inspectors.id, body.userId));
+        return user;
+      }
+    },
+    {
+      body: t.Object({
+        userId: t.String(),
+        type: t.Union([t.Literal("conductor"), t.Literal("inspector")]),
       }),
     }
   )

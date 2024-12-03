@@ -12,7 +12,6 @@ export const AddLocationsComponent = () => {
         try {
             const res = await actions.addLocation(formData)
             setShowModal(false)
-            console.log(res)
             if (res.data?.success) {
                 alert("Location added successfully")
                 location.reload()

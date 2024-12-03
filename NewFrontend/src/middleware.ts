@@ -1,28 +1,25 @@
 import { defineMiddleware } from "astro:middleware";
+import { fetchClient } from "@/lib/client";
 
 // `context` and `next` are automatically typed
 export const onRequest = defineMiddleware(async (context, next) => {
   const token = context.cookies.get("roletoken");
 
-  console.log("roletoken", token);
-
   if (!token) {
-    console.log("no token");
+    ("no token");
     context.locals.valid = false;
     context.locals.role = null;
     return next();
   }
 
   try {
-    const data = await fetch(
-      `http://localhost:5002/auth/verify?token=${token.value}`
+    const { data } = await fetchClient.get<{ valid: boolean; role: string }>(
+      `/auth/verify?token=${token.value}`
     );
 
-    const json = await data.json();
-
-    if (json.valid) {
+    if (data.valid) {
       context.locals.valid = true;
-      context.locals.role = json.role;
+      context.locals.role = data.role;
     } else {
       context.locals.valid = false;
       context.locals.role = null;

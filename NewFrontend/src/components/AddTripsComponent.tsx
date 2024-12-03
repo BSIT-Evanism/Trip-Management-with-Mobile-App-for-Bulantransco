@@ -47,14 +47,12 @@ export const AddTripsComponent = ({ locations, conductors, inspectors }: { locat
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
-        console.log("submit", formData);
 
         try {
             const { data, error } = await actions.addTrips(formData);
             if (error) {
                 console.error(error);
             }
-            console.log("data", data);
             alert("Trips added successfully");
             location.reload();
         } catch (error) {

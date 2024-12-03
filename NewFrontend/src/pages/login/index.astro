@@ -1,6 +1,10 @@
 ---
 import { LoginComponent } from "@/components/LoginComponent";
 import Layout from "@layouts/Layout.astro";
+
+if (Astro.locals.valid) {
+  return Astro.redirect("/");
+}
 ---
 
 <Layout title="Login">

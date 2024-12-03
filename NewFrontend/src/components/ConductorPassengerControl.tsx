@@ -1,20 +1,24 @@
+import { actions } from "astro:actions"
 import { useState, useMemo } from "react"
 
 
-export const ConductorPassengerControl = ({ initialCount }: { initialCount: number }) => {
+export const ConductorPassengerControl = ({ initialCount, tripId }: { initialCount: number, tripId: string }) => {
 
     const [passengerCount, setPassengerCount] = useState(initialCount)
-    const [confirm, setConfirm] = useState<{ button: "add" | "subtract", state: false } | null>(null)
     const [input, setInput] = useState(0)
 
-    // const handleSubtract = useMemo(() => {
-    //     const newCount = passengerCount - input
-    //     if (newCount < 0) {
-    //         alert("Passenger count cannot be negative!")
-    //         return passengerCount
-    //     }
-    //     return newCount
-    // }, [passengerCount, input])
+    const handleChange = async ({ type, count }: { type: 'add' | 'sub', count: number }) => {
+        try {
+            await actions.changePassengerCount({
+                type,
+                count,
+                tripId
+            })
+            location.reload()
+        } catch (e) {
+            console.error(e)
+        }
+    }
 
 
     return (
@@ -24,15 +28,16 @@ export const ConductorPassengerControl = ({ initialCount }: { initialCount: numb
             </h2>
             <div className="mt-4">
                 <div className="border-2 border-black p-4 bg-gray-100">
-                    <p className="font-mono">
+                    <p className="font-mono text-3xl mb-4">
                         Count: {passengerCount}
                     </p>
-                    <input value={input} onChange={(e) => setInput(Number(e.target.value))} type="number" className="border-2 px-4 py-2 h-12" />
+                    <input value={input} onChange={(e) => setInput(Number(e.target.value))} type="number" className="border-2 px-4 py-2 h-12 mb-4" />
                     <div className="w-full flex gap-4">
                         <button
                             onClick={() => {
+                                if (input === 0) return;
                                 if (window.confirm(`Are you sure you want to add ${input} passengers?`)) {
-                                    setPassengerCount(passengerCount + input);
+                                    handleChange({ type: 'add', count: input })
                                 }
                             }}
                             className="mt-2 border-2 flex-grow border-black px-4 py-2 font-mono hover:bg-black hover:text-white transition-colors"
@@ -41,11 +46,12 @@ export const ConductorPassengerControl = ({ initialCount }: { initialCount: numb
                         </button>
                         <button
                             onClick={() => {
+                                if (input === 0) return;
                                 const newCount = passengerCount - input;
-                                if (newCount < 0) {
+                                if (newCount >= 0 && window.confirm(`Are you sure you want to subtract ${input} passengers?`)) {
+                                    handleChange({ type: 'sub', count: input })
+                                } else if (newCount < 0) {
                                     alert("Passenger count cannot be negative!");
-                                } else if (window.confirm(`Are you sure you want to subtract ${input} passengers?`)) {
-                                    setPassengerCount(newCount);
                                 }
                             }}
                             className="mt-2 border-2 flex-grow border-black px-4 py-2 font-mono hover:bg-black hover:text-white transition-colors"
