@@ -18,7 +18,7 @@ const app = new Elysia()
   .use(
     jwt({
       name: "jwt",
-      secret: Bun.env.SECRET_KEY!,
+      secret: process.env.SECRET_KEY!,
     })
   )
   .get("/", () => ({ message: "Hello World Conductor" }))
@@ -39,6 +39,6 @@ const app = new Elysia()
 
     return logs;
   })
-  .listen({ port: 3002, idleTimeout: 255, development: false });
+  .listen({ port: 3002 });
 
 console.log(`🦊 Server is running at http://localhost:${app.server?.port}`);

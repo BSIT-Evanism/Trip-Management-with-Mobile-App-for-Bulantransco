@@ -9,7 +9,7 @@ export const managersRoute = new Elysia({ prefix: "/manager" })
   .use(
     jwt({
       name: "jwt",
-      secret: Bun.env.SECRET_KEY!,
+      secret: process.env.SECRET_KEY!,
     })
   )
   .use(bearer())

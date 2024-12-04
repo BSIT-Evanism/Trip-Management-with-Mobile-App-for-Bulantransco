@@ -14,7 +14,7 @@ export const auth = new Elysia({ prefix: "/auth" })
   .use(
     jwt({
       name: "jwt",
-      secret: Bun.env.SECRET_KEY!,
+      secret: process.env.SECRET_KEY!,
     })
   )
   .get("/", () => ({ message: "Hello World Auth" }))
@@ -44,8 +44,8 @@ export const auth = new Elysia({ prefix: "/auth" })
         }
       } else if (role === "manager") {
         if (
-          Bun.env.MANAGER_USER_NAME === username &&
-          Bun.env.MANAGER_USER_PASSWORD === password
+          process.env.MANAGER_USER_NAME === username &&
+          process.env.MANAGER_USER_PASSWORD === password
         ) {
           const token = await jwt.sign({ role: "manager" });
           return { token };

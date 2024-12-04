@@ -10,7 +10,7 @@ export const conductor = new Elysia({ prefix: "/conductor" })
   .use(
     jwt({
       name: "jwt",
-      secret: Bun.env.SECRET_KEY!,
+      secret: process.env.SECRET_KEY!,
     })
   )
   .use(bearer())

@@ -92,7 +92,7 @@ const [conductors, locations, inspectors, trips] = (await Promise.all([
           locations={locations}
           conductors={conductors}
           inspectors={inspectors}
-          client:load
+          client:only="react"
         />
       </div>
 
@@ -151,7 +151,7 @@ const [conductors, locations, inspectors, trips] = (await Promise.all([
                 </tbody>
               </table>
             </div>
-            <AddLocationsComponent client:load />
+            <AddLocationsComponent client:only="react" />
           </div>
         </div>
       </div>
@@ -167,7 +167,7 @@ const [conductors, locations, inspectors, trips] = (await Promise.all([
       <ConductorsInspectorsComp
         conductors={conductors}
         inspectors={inspectors}
-        client:load
+        client:only="react"
       />
     </div>
 

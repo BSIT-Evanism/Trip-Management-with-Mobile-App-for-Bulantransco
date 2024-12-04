@@ -6,7 +6,6 @@ export const server = {
   logoutFunction: defineAction({
     accept: "form",
     handler: async (input, context) => {
-      ("logout");
       context.cookies.delete("roletoken");
       return { success: true };
     },

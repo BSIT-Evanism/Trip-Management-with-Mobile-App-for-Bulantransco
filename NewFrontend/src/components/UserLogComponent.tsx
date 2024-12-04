@@ -12,40 +12,63 @@ type Log = {
 export const UserLogComponent = ({ tripId, token }: { tripId: string, token: string }) => {
     const [progress, setProgress] = useState(0);
     const [logs, setLogs] = useState<Log[]>([]);
+    const [loading, setLoading] = useState(false);
 
     const fetchLogs = async () => {
+        setLoading(true);
         const { data } = await fetchClient.get<Log[]>(`/userlogs/${tripId}`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
         setLogs(data);
+        setLoading(false);
     }
 
     useEffect(() => {
-        const intervalId = setInterval(() => {
-            setProgress((oldProgress) => {
-                if (oldProgress === 100) {
-                    fetchLogs()
-                    return 0
-                }
-                return Math.min(oldProgress + 2, 100)
-            })
-        }, 100)
+        fetchLogs();
+    }, []);
 
-        return () => {
-            clearInterval(intervalId);
-        };
-    }, [tripId]);
+    // useEffect(() => {
+    //     const intervalId = setInterval(() => {
+    //         setProgress((oldProgress) => {
+    //             if (oldProgress === 100) {
+    //                 fetchLogs()
+    //                 return 0
+    //             }
+    //             return Math.min(oldProgress + 2, 100)
+    //         })
+    //     }, 100)
+
+    //     return () => {
+    //         clearInterval(intervalId);
+    //     };
+    // }, [tripId]);
 
     return (
         <div className="border-4 border-black bg-white p-4 md:p-6 relative">
-            <div className="absolute top-2 right-2 w-8 h-1 bg-gray-200 rounded-full">
-                <div
-                    className="bg-blue-600 h-1 rounded-full"
-                    style={{ width: `${progress}%` }}
-                />
-            </div>
+            <button
+                onClick={() => fetchLogs()}
+                disabled={loading}
+                className="absolute disabled:opacity-50 disabled:pointer-events-none top-4 right-4 p-2 text-sm font-medium hover:bg-gray-100 inline-flex items-center justify-center rounded-md border border-gray-200 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mr-1"
+                >
+                    <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                    <path d="M21 3v5h-5" />
+                </svg>
+                Refresh
+            </button>
             <h2 className="scroll-m-20 text-2xl font-bold tracking-tight border-b-4 border-black pb-2">
                 Trip Logs
             </h2>

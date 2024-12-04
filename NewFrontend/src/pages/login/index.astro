@@ -9,7 +9,7 @@ if (Astro.locals.valid) {
 
 <Layout title="Login">
   <div class="login-container flex justify-center items-center h-screen">
-    <LoginComponent client:load />
+    <LoginComponent client:only="react" />
   </div>
 </Layout>
 

@@ -107,14 +107,9 @@ const singleRecord = trips[0];
         </dl>
       </div>
     </div>
-    <InspectorTripControl
-      tripId={tripId}
-      tripStatus={singleRecord.tripStatus || "not_started"}
-      client:load
-    />
     <UserLogComponent
       tripId={tripId}
-      client:load
+      client:only="react"
       token={Astro.cookies.get("roletoken")?.value || ""}
     />
   </div>

@@ -10,7 +10,7 @@ export const inspectorRoutes = new Elysia({ prefix: "/inspector" })
   .use(
     jwt({
       name: "jwt",
-      secret: Bun.env.SECRET_KEY!,
+      secret: process.env.SECRET_KEY!,
     })
   )
   .use(bearer())
@@ -81,7 +81,7 @@ export const inspectorRoutes = new Elysia({ prefix: "/inspector" })
 
       const user = await jwt.verify(bearer);
 
-      if (!user || user.role !== "inspector") {
+      if (!user || user.role !== "conductor") {
         return new Response("Unauthorized", { status: 401 });
       }
 
@@ -101,7 +101,7 @@ export const inspectorRoutes = new Elysia({ prefix: "/inspector" })
           const tripQuery = await tx.query.trips.findFirst({
             where: (table, { eq, and }) =>
               and(
-                eq(table.inspectorId, user.userId as string),
+                eq(table.conductorId, user.userId as string),
                 eq(table.id, body.tripId)
               ),
             with: {
@@ -127,7 +127,7 @@ export const inspectorRoutes = new Elysia({ prefix: "/inspector" })
 
           await addLogsAction(
             body.tripId,
-            `Trip Started by Inspector ${user.userId}`
+            `Trip Started by Conductor ${user.userId}`
           );
 
           return updatedTrip;
@@ -153,7 +153,7 @@ export const inspectorRoutes = new Elysia({ prefix: "/inspector" })
 
       const user = await jwt.verify(bearer);
 
-      if (!user || user.role !== "inspector") {
+      if (!user || user.role !== "conductor") {
         return new Response("Unauthorized", { status: 401 });
       }
 
@@ -173,7 +173,7 @@ export const inspectorRoutes = new Elysia({ prefix: "/inspector" })
           const trip = await tx.query.trips.findFirst({
             where: (table, { eq, and }) =>
               and(
-                eq(table.inspectorId, user.userId as string),
+                eq(table.conductorId, user.userId as string),
                 eq(table.id, body.tripId),
                 eq(table.tripStatus, "in_progress")
               ),
@@ -201,7 +201,7 @@ export const inspectorRoutes = new Elysia({ prefix: "/inspector" })
 
           await addLogsAction(
             body.tripId,
-            `Trip Ended by Inspector ${user.userId} on Location ${trip.relatedDestination?.name}`
+            `Trip Ended by Conductor ${user.userId} on Location ${trip.relatedDestination?.name}`
           );
 
           return updatedTrip;
