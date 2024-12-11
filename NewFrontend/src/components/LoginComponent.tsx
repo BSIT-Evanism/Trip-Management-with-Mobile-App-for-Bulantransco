@@ -22,7 +22,6 @@ export const LoginComponent = () => {
                 setError("");
                 location.href = "/login/verify?token=" + data.token;
             }
-
         } catch (e) {
             ("error");
         }
