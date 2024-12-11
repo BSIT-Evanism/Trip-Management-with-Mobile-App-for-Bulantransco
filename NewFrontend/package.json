@@ -14,7 +14,6 @@
     "@astrojs/node": "^8.3.4",
     "@astrojs/react": "^3.6.2",
     "@astrojs/tailwind": "^5.1.2",
-    "@astrojs/vercel": "^8.0.0",
     "@sentry/astro": "^7.109.0",
     "@spotlightjs/astro": "^1.0.19",
     "@types/react": "^18.3.12",
