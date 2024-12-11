@@ -21,17 +21,20 @@ const PersonnelSelect = ({
     items: Personnel[]
 }) => (
     <div className="flex flex-col gap-2">
-        <label htmlFor={name} className="font-mono text-sm">
+        <label htmlFor={name} className="text-sm font-medium text-gray-700">
             {label}
             {items.length === 0 ? (
-                <div className="border-2 border-black px-4 py-2 font-mono bg-gray-100 text-gray-500">
+                <div className="mt-1 border-2 border-dashed border-gray-300 px-4 py-3 bg-gray-50 text-gray-500 rounded-lg text-center">
                     No {label.toLowerCase()} available
                 </div>
             ) : (
                 <select
                     name={name}
-                    className="border-2 border-black px-4 py-2 font-mono w-full"
+                    className="mt-1 block w-full rounded-lg border-2 border-gray-300 px-4 py-2.5 
+                    bg-white shadow-sm transition-colors hover:border-gray-400 focus:border-blue-500 
+                    focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                 >
+                    <option value="" disabled selected>Select {label}</option>
                     {items.map((item) => (
                         <option key={item.id} value={item.id}>
                             {item.name}
@@ -61,53 +64,60 @@ export const AddTripsComponent = ({ locations, conductors, inspectors }: { locat
     }
 
     return (
-        <div className="border-4 border-black bg-white p-6">
-            <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-                Quick Actions
-            </h2>
-
-            <div className="my-4">
+        <div className="bg-white rounded-xl shadow-sm">
+            <div className="p-6">
                 <AddPersonelComponent />
 
                 <form
                     onSubmit={handleSubmit}
                     method="post"
-                    className="border-2 mt-2 border-black w-full p-4 flex flex-col gap-4"
+                    className="mt-6 space-y-6 border-4 border-gray-200 rounded-xl p-6 bg-gray-50/50"
                 >
-                    <PersonnelSelect label="Location" name="locationId" items={locations} />
-                    <PersonnelSelect label="Conductor" name="conductorId" items={conductors} />
-                    <PersonnelSelect label="Inspector" name="inspectorId" items={inspectors} />
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="date" className="font-mono text-sm">
-                            Date
-                            <input
-                                type="date"
-                                name="date"
-                                className="border-2 border-black px-4 py-2 font-mono w-full"
-                            />
-                        </label>
+                    <div className="grid gap-6 md:grid-cols-2">
+                        <PersonnelSelect label="Inspector" name="inspectorId" items={inspectors} />
+                        <PersonnelSelect label="Conductor" name="conductorId" items={conductors} />
                     </div>
+                    
+                    <PersonnelSelect label="Location" name="locationId" items={locations} />
 
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="totalPassengers" className="font-mono text-sm">
-                            Total Passengers
-                            <input
-                                type="number"
-                                name="totalPassengers"
-                                className="border-2 border-black px-4 py-2 font-mono w-full"
-                            />
-                        </label>
+                    <div className="grid gap-6 md:grid-cols-2">
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="date" className="text-sm font-medium text-gray-700">
+                                Date
+                                <input
+                                    type="date"
+                                    name="date"
+                                    required
+                                    className="mt-1 block w-full rounded-lg border-2 border-gray-300 px-4 py-2.5 
+                                    bg-white shadow-sm transition-colors hover:border-gray-400 
+                                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                />
+                            </label>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="totalPassengers" className="text-sm font-medium text-gray-700">
+                                Total Passengers
+                                <input
+                                    type="number"
+                                    name="totalPassengers"
+                                    required
+                                    min="0"
+                                    className="mt-1 block w-full rounded-lg border-2 border-gray-300 px-4 py-2.5 
+                                    bg-white shadow-sm transition-colors hover:border-gray-400 
+                                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                />
+                            </label>
+                        </div>
                     </div>
 
                     <button
                         type="submit"
                         disabled={!locations.length || !conductors.length || !inspectors.length}
-                        className="border-2 border-black px-4 py-2 font-mono hover:bg-black hover:text-white 
-                     transition-colors mt-2 disabled:opacity-50 disabled:hover:bg-white 
-                     disabled:hover:text-black"
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 w-full font-sans transition-colors rounded-lg mt-8 text-sm"
                     >
-                        ADD TRIPS
+                        {!locations.length || !conductors.length || !inspectors.length ? 
+                            'Missing Required Personnel' : 'ADD TRIP'}
                     </button>
                 </form>
             </div>

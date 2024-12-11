@@ -85,5 +85,4 @@ export const tripLogsRelations = relations(tripLogs, ({ one }) => ({
 
 export const locationsRelations = relations(locations, ({ many }) => ({
   relatedTrips: many(trips),
-  relatedTripLogs: many(tripLogs),
 }));

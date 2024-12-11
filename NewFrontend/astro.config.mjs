@@ -11,12 +11,16 @@ import node from "@astrojs/node";
 
 import metaTags from "astro-meta-tags";
 
+import vercel from "@astrojs/vercel/serverless";
+
 // https://astro.build/config
 export default defineConfig({
   integrations: [react(), tailwind(), sentry(), spotlightjs(), metaTags()],
   output: "server",
   prefetch: false,
-  adapter: node({
-    mode: "standalone",
+  adapter: vercel({
+    webAnalytics: {
+      enabled: false,
+    },
   }),
 });

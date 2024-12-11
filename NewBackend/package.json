@@ -14,7 +14,7 @@
     "@elysiajs/jwt": "^1.1.1",
     "@elysiajs/swagger": "^1.1.6",
     "@tqman/nice-logger": "^1.0.7",
-    "drizzle-orm": "^0.36.4",
+    "drizzle-orm": "^0.37.0",
     "elysia": "latest",
     "pg": "^8.13.1",
     "postgres": "^3.4.5"
@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/pg": "^8.11.10",
     "bun-types": "latest",
-    "drizzle-kit": "^0.28.1",
+    "drizzle-kit": "^0.29.1",
     "typescript": "^5.7.2"
   },
   "packageManager": "pnpm@9.1.1+sha512.14e915759c11f77eac07faba4d019c193ec8637229e62ec99eefb7cf3c3b75c64447882b7c485142451ee3a6b408059cdfb7b7fa0341b975f12d0f7629c71195"

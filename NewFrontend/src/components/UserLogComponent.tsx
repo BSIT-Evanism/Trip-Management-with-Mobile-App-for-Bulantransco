@@ -28,29 +28,13 @@ export const UserLogComponent = ({ tripId, token }: { tripId: string, token: str
     useEffect(() => {
         fetchLogs();
     }, []);
-
-    // useEffect(() => {
-    //     const intervalId = setInterval(() => {
-    //         setProgress((oldProgress) => {
-    //             if (oldProgress === 100) {
-    //                 fetchLogs()
-    //                 return 0
-    //             }
-    //             return Math.min(oldProgress + 2, 100)
-    //         })
-    //     }, 100)
-
-    //     return () => {
-    //         clearInterval(intervalId);
-    //     };
-    // }, [tripId]);
-
+    
     return (
         <div className="border-4 border-black bg-white p-4 md:p-6 relative">
             <button
                 onClick={() => fetchLogs()}
                 disabled={loading}
-                className="absolute disabled:opacity-50 disabled:pointer-events-none top-4 right-4 p-2 text-sm font-medium hover:bg-gray-100 inline-flex items-center justify-center rounded-md border border-gray-200 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950"
+                className="absolute disabled:opacity-50 disabled:pointer-events-none top-4 right-4 p-2 text-sm font-medium hover:bg-gray-100 inline-flex items-center justify-center rounded-md border border-gray-200 shadow-sm transition-colors"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"

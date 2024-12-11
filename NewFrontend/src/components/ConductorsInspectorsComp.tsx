@@ -37,19 +37,19 @@ export const ConductorsInspectorsComp = ({ conductors, inspectors }: { conductor
         <tr>
             <th className="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100">ID</th>
             <th className="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100">NAME</th>
-            <th className="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100">STATUS</th>
-            <th className="border-2 border-black px-4 py-2 text-left font-mono bg-gray-100">OPTIONS</th>
+            <th className="border-2 border-black px-4 py-2 font-mono bg-gray-100">STATUS</th>
+            <th className="border-2 border-black px-4 py-2 font-mono bg-gray-100">OPTIONS</th>
         </tr>
     );
 
     const TableRow = ({ id, name, relatedTrips }: { id: string, name: string, relatedTrips: { tripStatus: "not_started" | "in_progress" | "completed" }[] }) => (
         <tr>
-            <td className="border-2 border-black px-4 py-2 font-mono">{id}</td>
-            <td className="border-2 border-black px-4 py-2 font-mono">{name}</td>
-            <td className="border-2 border-black px-4 py-2 font-mono">
+            <td className="border-2 border-black px-6 py-3 font-mono">{id}</td>
+            <td className="border-2 border-black px-6 py-3 font-mono">{name}</td>
+            <td className="border-2 border-black px-2 py-1 font-mono">
                 {relatedTrips.filter(trip => trip.tripStatus === 'in_progress').length ? "ACTIVE" : "INACTIVE"}
             </td>
-            <td className="border-2 border-black px-4 py-2 font-mono">
+            <td className="border-2 border-black px-2 py-1 font-mono">
                 <form onSubmit={handleDelete}>
                     <input type="hidden" name="userId" value={id} />
                     <input type="hidden" name="type" value={activeTab === 'conductors' ? 'conductor' : 'inspector'} />
