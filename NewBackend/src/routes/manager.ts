@@ -66,7 +66,7 @@ export const managersRoute = new Elysia({ prefix: "/manager" })
         const conductor = await db
           .insert(conductors)
           .values({
-            name: body.email,
+            name: body.name,
             password: body.password,
           })
           .returning();
@@ -75,7 +75,7 @@ export const managersRoute = new Elysia({ prefix: "/manager" })
         const inspector = await db
           .insert(inspectors)
           .values({
-            name: body.email,
+            name: body.name,
             password: body.password,
           })
           .returning();
@@ -84,9 +84,7 @@ export const managersRoute = new Elysia({ prefix: "/manager" })
     },
     {
       body: t.Object({
-        email: t.String({
-          format: "email",
-        }),
+        name: t.String(),
         password: t.String(),
         role: t.Union([t.Literal("conductor"), t.Literal("inspector")]),
       }),

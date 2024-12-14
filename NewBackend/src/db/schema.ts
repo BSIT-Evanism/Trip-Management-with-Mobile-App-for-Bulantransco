@@ -60,6 +60,21 @@ export const inspectorsRelations = relations(inspectors, ({ many }) => ({
   relatedTrips: many(trips),
 }));
 
+export const tripCountRequests = pgTable("trip_count_requests", (t) => ({
+  id: t.serial("id").primaryKey(),
+  tripId: t.uuid("trip_id").references(() => trips.id, {
+    onDelete: "set null",
+  }),
+  requestValue: t.integer("request_value").notNull(),
+  requestStatus: t
+    .varchar("request_status", {
+      length: 255,
+      enum: ["pending", "approved", "rejected"],
+    })
+    .default("pending")
+    .notNull(),
+}));
+
 export const tripsRelations = relations(trips, ({ many, one }) => ({
   relatedDestination: one(locations, {
     fields: [trips.destination],

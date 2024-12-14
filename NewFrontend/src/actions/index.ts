@@ -13,7 +13,7 @@ export const server = {
   addPersonel: defineAction({
     accept: "json",
     input: z.object({
-      email: z.string().email(),
+      name: z.string(),
       password: z.string(),
       role: z.enum(["conductor", "inspector"]),
     }),
@@ -38,7 +38,7 @@ export const server = {
         const { data } = await fetchClient.post(
           "/manager/addpersonel",
           {
-            email: input.email,
+            name: input.name,
             password: input.password,
             role: input.role,
           },
@@ -314,6 +314,43 @@ export const server = {
         throw new ActionError({
           code: "BAD_REQUEST",
           message: "Failed to end trip",
+        });
+      }
+    },
+  }),
+  approveRequest: defineAction({
+    accept: "json",
+    input: z.object({
+      tripId: z.string(),
+      requestId: z.number(),
+      action: z.enum(["approve", "reject"]),
+    }),
+    handler: async (input, context) => {
+      input;
+
+      if (!context.cookies.get("roletoken")) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Not logged in",
+        });
+      }
+
+      const token = context.cookies.get("roletoken")?.value;
+
+      try {
+        await fetchClient.post(`/inspector/manage-requests/${input.requestId}`, input, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        return { success: true };
+      } catch (error) {
+        error;
+        throw new ActionError({
+          code: "BAD_REQUEST",
+          message: "Failed to approve request",
         });
       }
     },

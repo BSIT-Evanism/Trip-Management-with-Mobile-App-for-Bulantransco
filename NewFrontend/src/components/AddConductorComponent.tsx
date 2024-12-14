@@ -3,21 +3,21 @@ import { useState } from "react"
 import { createPortal } from "react-dom"
 
 export const AddPersonelComponent = () => {
-    const [email, setEmail] = useState("")
+    const [name, setName] = useState("")
     const [password, setPassword] = useState("")
     const [showModal, setShowModal] = useState(false)
     const [activeTab, setActiveTab] = useState<'conductor' | 'inspector'>('conductor')
 
     async function handleClick() {
         const { data, error } = await actions.addPersonel({
-            email: email,
+            name: name,
             password: password,
             role: activeTab
         })  
 
         if (data) {
             setShowModal(false)
-            setEmail("")
+            setName("")
             setPassword("")
             location.reload()
         }
@@ -69,14 +69,14 @@ export const AddPersonelComponent = () => {
                         <div className="space-y-6">
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-gray-700 font-sans">
-                                    Email
+                                    Name
                                 </label>
                                 <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                     className="border-2 border-gray-200 p-3 w-full font-sans rounded-md focus:border-black focus:ring-1 focus:ring-black transition-all"
-                                    placeholder="email@example.com"
+                                    placeholder="John Doe"
                                 />
                             </div>
                             <div className="space-y-2">

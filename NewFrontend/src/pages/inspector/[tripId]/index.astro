@@ -1,4 +1,5 @@
 ---
+import { InspectorRequestControl } from "@/components/InspectorRequestControl";
 import { InspectorTripControl } from "@/components/InspectorTripControl";
 import { UserLogComponent } from "@/components/UserLogComponent";
 import Layout from "@/layouts/Layout.astro";
@@ -17,10 +18,22 @@ type Trip = {
   tripStatus: "not_started" | "in_progress" | "completed" | null;
   relatedDestination: { name: string } | null;
   relatedInspector: { name: string } | null;
+  currentPassengers: number | null;
 };
 
 const { data: trips } = await fetchClient
   .get<Trip[]>(`/inspector/trips?tripId=${tripId}`, {
+    headers: {
+      Authorization: `Bearer ${Astro.cookies.get("roletoken")?.value}`,
+    },
+  })
+  .catch((error) => {
+    console.error(error);
+    return { data: [] };
+  });
+
+const { data: requests } = await fetchClient
+  .get<any[]>(`/conductor/requests/${tripId}`, {
     headers: {
       Authorization: `Bearer ${Astro.cookies.get("roletoken")?.value}`,
     },
@@ -104,11 +117,23 @@ const singleRecord = trips[0];
               {singleRecord.relatedInspector?.name || "N/A"}
             </dd>
           </div>
+          <div class="border-2 border-black p-4 bg-gray-100">
+            <dt class="font-mono text-sm md:text-base font-bold">Current Passengers</dt>
+            <dd class="mt-1 font-mono text-sm md:text-base">
+              {singleRecord.currentPassengers || "N/A"}
+            </dd>
+          </div>
         </dl>
       </div>
     </div>
     <UserLogComponent
       tripId={tripId}
+      client:only="react"
+      token={Astro.cookies.get("roletoken")?.value || ""}
+    />
+    <InspectorRequestControl
+      tripId={tripId}
+      requests={requests}
       client:only="react"
       token={Astro.cookies.get("roletoken")?.value || ""}
     />

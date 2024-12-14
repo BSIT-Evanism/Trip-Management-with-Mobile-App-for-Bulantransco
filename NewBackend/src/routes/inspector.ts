@@ -2,7 +2,7 @@ import bearer from "@elysiajs/bearer";
 import jwt from "@elysiajs/jwt";
 import Elysia, { t } from "elysia";
 import db from "../db";
-import { locations, trips } from "../db/schema";
+import { locations, tripCountRequests, trips } from "../db/schema";
 import { and, eq } from "drizzle-orm";
 import { addLogsAction } from "../lib/add-logs";
 
@@ -217,4 +217,68 @@ export const inspectorRoutes = new Elysia({ prefix: "/inspector" })
         tripId: t.String(),
       }),
     }
-  );
+  )
+  .post(
+    '/manage-requests/:requestId',
+    async ({ jwt, bearer, params, body }) => {
+      const user = await jwt.verify(bearer);
+
+      if (!user || user.role !== "inspector") {
+        return new Response("Unauthorized", { status: 401 });
+      }
+
+      
+      
+      const updatedRequest = await db.transaction(async (tx) => {
+        const requests = await tx.query.tripCountRequests.findFirst({
+          where: (table, { eq }) => eq(table.id, Number(params.requestId)),
+        });
+
+        if (!requests) {
+          throw new Error("Request Not Found");
+        }
+        
+        if (requests.requestStatus !== "pending") {
+          throw new Error("Request Not Pending");
+        }
+
+        if (body.action === "approve") {
+          const updatedRequest = await tx.update(tripCountRequests).set({
+            requestStatus: "approved",
+        }).where(eq(tripCountRequests.id, Number(params.requestId))).returning();
+
+        const updatedTrip = await tx.update(trips).set({
+          currentPassengers: requests.requestValue,
+        }).where(eq(trips.id, requests.tripId as string)).returning();
+
+        await addLogsAction(
+          requests.tripId as string,
+          `Request Approved by Inspector ${user.userId}`
+        );
+
+        return updatedTrip;
+
+        } else if (body.action === "reject") {
+          const updatedRequest = await tx.update(tripCountRequests).set({
+            requestStatus: "rejected",
+          }).where(eq(tripCountRequests.id, Number(params.requestId))).returning();
+
+          await addLogsAction(
+            requests.tripId as string,
+            `Request Rejected by Inspector ${user.userId}`
+          );
+        }
+      });
+
+      return updatedRequest;
+    },
+    {
+      body: t.Object({
+        action: t.Union([
+          t.Literal("approve"),
+          t.Literal("reject"),
+        ]),
+      }),
+    }
+  )
+
